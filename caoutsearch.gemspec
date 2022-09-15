@@ -17,9 +17,16 @@ Gem::Specification.new do |s|
   s.files         = Dir["lib/**/*"] + %w[LICENSE README.md]
   s.require_paths = ["lib"]
 
-  s.add_dependency "elastisearch"
+  s.add_dependency "elasticsearch", "~> 8.x"
 
   s.add_development_dependency "bundler"
+  s.add_development_dependency "gem-release"
   s.add_development_dependency "rake"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "rubocop"
+  s.add_development_dependency "rubocop-rake"
+  s.add_development_dependency "rubocop-rspec"
+  s.add_development_dependency "rubocop-performance"
+  s.add_development_dependency "standard"
   s.add_development_dependency "zeitwerk"
 end
