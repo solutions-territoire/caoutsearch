@@ -9,6 +9,7 @@ module Caoutsearch
 
       include Caoutsearch::Index::Document
       include Caoutsearch::Index::Indice
+      include Caoutsearch::Index::IndiceVersions
       include Caoutsearch::Index::Instrumentation
       include Caoutsearch::Index::InternalDSL
       include Caoutsearch::Index::Naming
