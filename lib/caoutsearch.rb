@@ -3,7 +3,9 @@
 require "zeitwerk"
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect(
+  "dsl"          => "DSL",
   "internal_dsl" => "InternalDSL",
+  "none"         => "NONE"
 )
 loader.setup
 
