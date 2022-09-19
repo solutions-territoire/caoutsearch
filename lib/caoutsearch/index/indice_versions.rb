@@ -13,9 +13,9 @@ module Caoutsearch
         #
         def indice_versions
           client.cat
-                .indices(h: ['index'], format: :json)
-                .filter_map { |h| h['index'] }
-                .grep(indice_version_regexp)
+            .indices(h: ["index"], format: :json)
+            .filter_map { |h| h["index"] }
+            .grep(indice_version_regexp)
         end
 
         # List aliased versions
@@ -25,9 +25,9 @@ module Caoutsearch
         #
         def aliased_indice_versions
           client.indices
-                .get_alias(name: index_name)
-                .keys
-                .grep(indice_version_regexp)
+            .get_alias(name: index_name)
+            .keys
+            .grep(indice_version_regexp)
         rescue Elastic::Transport::Transport::Errors::NotFound
           []
         end

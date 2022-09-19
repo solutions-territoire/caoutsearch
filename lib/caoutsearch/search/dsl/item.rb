@@ -25,7 +25,7 @@ module Caoutsearch
         def inspect
           properties = properties_to_inspect.map { |k, v| " #{k}: #{v}" }
 
-          "#<#{self.class}#{properties.join(',')}>"
+          "#<#{self.class}#{properties.join(",")}>"
         end
 
         private

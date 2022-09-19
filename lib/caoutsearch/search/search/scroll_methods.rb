@@ -5,7 +5,7 @@ module Caoutsearch
     module Search
       module ScrollMethods
         def scroll(scroll: "1h", &block)
-          return to_enum(scroll, scroll: scroll) unless block_given?
+          return to_enum(scroll, scroll: scroll) unless block
 
           request_payload = {
             index:  index_name,
@@ -86,7 +86,7 @@ module Caoutsearch
           return to_enum(:scroll_records_in_batches, **options) unless block_given?
 
           scroll(**options) do |hits|
-            ids = hits.map { |doc| doc['_id'] }
+            ids = hits.map { |doc| doc["_id"] }
             yield model.where(id: ids)
             model.connection.clear_query_cache
           end

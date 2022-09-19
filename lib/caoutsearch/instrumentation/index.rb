@@ -33,11 +33,11 @@ module Caoutsearch
       def reindex(event)
         log_request("Reindex", event, format: log_request_format)
         log_response("Reindex", event, warn_errors: true) do |message|
-          payload       = event.payload
-          request      = payload[:request]
+          payload = event.payload
+          request = payload[:request]
           request_size = inspect_json_size(request)
 
-          response      = payload[:response]
+          response = payload[:response]
           response_size = inspect_json_size(response)
 
           message += ", request size: #{request_size}"

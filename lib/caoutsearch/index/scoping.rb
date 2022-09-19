@@ -37,7 +37,8 @@ module Caoutsearch
           names += %w[_default] # Use += instead of << to create a copy
 
           names.each do |name|
-            if scope = scopes[name]
+            if scopes.include?[name]
+              scope   = scopes[name]
               records = scope.call(records)
             elsif partial_reindexations.include?(name)
               properties = partial_reindexations.dig(name, :properties)

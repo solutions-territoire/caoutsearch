@@ -36,11 +36,12 @@ module Caoutsearch
           terms = terms.without(Caoutsearch::Filter::NONE)
           return if terms.empty?
 
-          if terms.size == 1
-            filters << { bool: { must_not: terms[0] } }
-          else
-            filters << { bool: { must_not: terms } }
-          end
+          filters <<
+            if terms.size == 1
+              { bool: { must_not: terms[0] } }
+            else
+              filters << { bool: { must_not: terms } }
+            end
         end
 
         def flatten_bool_terms(operator, raw_terms)

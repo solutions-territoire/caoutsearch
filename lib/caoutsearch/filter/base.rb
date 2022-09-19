@@ -24,7 +24,7 @@ module Caoutsearch
         if filter.present? && nested_query?
           filter = {
             nested: {
-              path:  nested_path,
+              path: nested_path,
               query: { bool: { filter: Array.wrap(filter) } }
             }
           }
@@ -71,10 +71,10 @@ module Caoutsearch
 
           grouped_terms.each { |term| terms.delete(term) }
 
-          if values.size == 1
-            terms << { term: { key => values[0] } }
+          terms << if values.size == 1
+            { term: { key => values[0] } }
           else
-            terms << { terms: { key => values } }
+            { terms: { key => values } }
           end
         end
 

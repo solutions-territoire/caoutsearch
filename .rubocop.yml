@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 require:
   - rubocop-performance
   - rubocop-rspec
@@ -13,6 +15,5 @@ inherit_gem:
 
 AllCops:
   NewCops: enable
-
-Layout/ExtraSpacing:
-  AllowForAlignment: true
+  Exclude:
+    - '**/vendor/**/*'

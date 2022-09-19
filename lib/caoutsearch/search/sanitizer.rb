@@ -4,7 +4,7 @@ module Caoutsearch
   module Search
     module Sanitizer
       ESCAPED_CHARACTERS        = "\+-&|!(){}[]^~*?:"
-      ESCAPED_CHARACTERS_REGEXP = /([+\-&|!(){}\[\]\^~*?:])/.freeze
+      ESCAPED_CHARACTERS_REGEXP = /([+\-&|!(){}\[\]\^~*?:])/
 
       class << self
         def sanitize(value, characters = ESCAPED_CHARACTERS)

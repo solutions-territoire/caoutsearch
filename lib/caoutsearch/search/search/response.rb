@@ -41,7 +41,7 @@ module Caoutsearch
         end
 
         def ids
-          hits.pluck('_id')
+          hits.pluck("_id")
         end
 
         def aggregations
@@ -73,7 +73,7 @@ module Caoutsearch
             body:   query
           }
 
-          search_results = instrument(:search) do |event_payload|
+          instrument(:search) do |event_payload|
             event_payload[:request]  = request_payload
             event_payload[:response] = client.search(request_payload)
           end

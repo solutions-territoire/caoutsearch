@@ -30,7 +30,7 @@ module Caoutsearch
           title     = color("#{payload[:klass]} #{subject}", GREEN, true)
 
           duration  = "#{event.duration.round(1)}ms"
-          duration += " / took #{response['took']}ms" if response.key?("took")
+          duration += " / took #{response["took"]}ms" if response.key?("took")
           duration  = color("(#{duration})", GREEN, true)
 
           message  = "  #{title} #{duration}"

@@ -31,12 +31,12 @@ module Caoutsearch
       # https://rubular.com/r/KEA7poAaIeNrZe
       QUERY_STRING_REGEXP = %r{
         (?:[*?][^\s*?]|[^\s*?][*?]|(?:^|\s)(?:AND|OR|NOT)(?:$|\s)|^\*$)
-      }x.freeze
+      }x
 
       # https://rubular.com/r/tVMSviF0a74e1s
       STRIPPED_OPERATOR_REGEXP = %r{
         (?:^\s*(?:AND|OR)\*$|^\s*(?:AND|OR)\s+|\s+(?:AND|OR)\s*$)
-      }x.freeze
+      }x
 
       def use_query_string?
         QUERY_STRING_REGEXP.match?(value)

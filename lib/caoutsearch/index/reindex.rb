@@ -45,10 +45,10 @@ module Caoutsearch
           progress&.total    = total
           progress&.progress = current_progress
 
-          if total <= batch_size
-            finder = records.to_a.each_slice(total)
+          finder = if total <= batch_size
+            records.to_a.each_slice(total)
           else
-            finder = records.find_in_batches(batch_size: batch_size)
+            records.find_in_batches(batch_size: batch_size)
           end
 
           finder.each do |batch|

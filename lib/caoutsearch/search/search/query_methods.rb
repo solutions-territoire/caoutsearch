@@ -46,7 +46,7 @@ module Caoutsearch
         # Applying DSL filters items
         # ------------------------------------------------------------------------
         def apply_dsl_match_all(value)
-          return unless block = config[:match_all]
+          return unless (block = config[:match_all])
 
           instance_exec(value, &block)
         end
@@ -138,11 +138,11 @@ module Caoutsearch
           args.each do |arg|
             if arg.is_a?(Hash)
               arg.each do |key, value|
-                next unless item = config[:aggregations][key]
+                next unless (item = config[:aggregations][key])
 
                 apply_dsl_aggregate(item, value)
               end
-            elsif item = config[:aggregations][arg]
+            elsif (item = config[:aggregations][arg])
               apply_dsl_aggregate(item)
             end
           end
@@ -161,8 +161,7 @@ module Caoutsearch
             raise ArgumentError unless hash.is_a?(Hash)
 
             hash.each do |key, value|
-              item = config[:suggestions][key.to_s]
-              next unless item = config[:suggestions][key.to_s]
+              next unless (item = config[:suggestions][key.to_s])
 
               options ||= {}
               apply_dsl_suggest(item, value, **options)

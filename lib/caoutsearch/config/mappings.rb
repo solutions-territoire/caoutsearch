@@ -31,12 +31,9 @@ module Caoutsearch
           JSON.parse(path.read)
         end
 
-        # rubocop:disable Naming/AccessorMethodName
-        # This is not an accessor
         def get_remote_mappings
           client.indices.get_mapping(index: index_name).values[0]["mappings"]
         end
-        # rubocop:enable Naming/AccessorMethodName
       end
     end
   end
