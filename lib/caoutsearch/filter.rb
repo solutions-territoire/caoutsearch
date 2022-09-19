@@ -22,7 +22,6 @@ module Caoutsearch
 end
 
 Caoutsearch::Filter.register(Caoutsearch::Filter::Boolean)
-Caoutsearch::Filter.register(Caoutsearch::Filter::BoundingBox)
 Caoutsearch::Filter.register(Caoutsearch::Filter::Date)
 Caoutsearch::Filter.register(Caoutsearch::Filter::Default)
 Caoutsearch::Filter.register(Caoutsearch::Filter::GeoPoint)
