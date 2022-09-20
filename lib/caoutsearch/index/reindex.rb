@@ -34,9 +34,9 @@ module Caoutsearch
 
           index            = options.fetch(:index, index_name)
           refresh          = options.fetch(:refresh, false)
-          batch_size       = options.fetch(:batch_size, 100)
           method           = options.fetch(:method) { keys.present? ? :update : :index }
-          total            = options.fetch(:total)  { records.count(:all) }
+          batch_size       = options[:batch_size] || 100
+          total            = options[:total] || records.count(:all)
           progress         = options[:progress]
           current_progress = 0
 
@@ -58,7 +58,7 @@ module Caoutsearch
               body:   bulkify(batch, method, keys)
             }
 
-            instrument(:reindex, total: total, progress: current_progress) do |event_payload|
+            instrument(:reindex, total: total, progress: current_progress, records: batch) do |event_payload|
               event_payload[:request]  = request_payload
               event_payload[:response] = client.bulk(request_payload)
             end
