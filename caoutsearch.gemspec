@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files         = Dir["lib/**/*"] + %w[LICENSE README.md]
   s.require_paths = ["lib"]
 
-  s.add_dependency "activesupport", ">= 6.0"
+  s.add_dependency "activesupport", ">= 5.0"
   s.add_dependency "elasticsearch", "~> 8.x"
   s.add_dependency "zeitwerk", "~> 2.6.0"
 
