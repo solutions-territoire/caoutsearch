@@ -20,6 +20,7 @@ module Caoutsearch
           reset_variable(:@elasticsearch_query)
           reset_variable(:@nested_queries)
           reset_variable(:@response)
+          reset_variable(:@total_count)
           self
         end
 

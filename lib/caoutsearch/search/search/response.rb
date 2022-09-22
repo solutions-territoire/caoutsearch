@@ -25,15 +25,19 @@ module Caoutsearch
         end
 
         def hits
-          response["hits"]["hits"]
+          response.dig("hits", "hits")
         end
 
         def max_score
-          response["hits"]["max_score"]
+          response.dig("hits", "max_score")
         end
 
         def total_count
-          response["hits"]["total"]["value"]
+          if response.dig("hits", "total", "relation") == "gte" && !@track_total_hits
+            @total_count ||= spawn.track_total_hits(true).total_count
+          else
+            response.dig("hits", "total", "value")
+          end
         end
 
         def total_pages

@@ -9,46 +9,46 @@ module Caoutsearch
 
         # Public API
         # ------------------------------------------------------------------------
-        def search(*values)
-          spawn.search!(*values)
+        def search(...)
+          spawn.search!(...)
         end
 
-        def context(value)
-          spawn.context!(value)
+        def context(...)
+          spawn.context!(...)
         end
 
-        def order(value)
-          spawn.order!(value)
+        def order(...)
+          spawn.order!(...)
         end
 
-        def page(value)
-          spawn.page!(value)
+        def page(...)
+          spawn.page!(...)
         end
 
-        def limit(value)
-          spawn.limit!(value)
+        def limit(...)
+          spawn.limit!(...)
         end
         alias_method :per, :limit
 
-        def offset(value)
-          spawn.offset!(value)
+        def offset(...)
+          spawn.offset!(...)
         end
 
-        def aggregate(*values)
-          spawn.aggregate!(*values)
+        def aggregate(...)
+          spawn.aggregate!(...)
         end
 
-        def suggest(values, **options)
-          spawn.suggest!(values, **options)
+        def suggest(...)
+          spawn.suggest!(...)
         end
 
-        def fields(*values)
-          spawn.fields!(*values)
+        def fields(...)
+          spawn.fields!(...)
         end
         alias_method :returns, :fields
 
-        def source(*values)
-          spawn.source!(*values)
+        def source(...)
+          spawn.source!(...)
         end
         alias_method :with_sources, :source
 
@@ -60,16 +60,20 @@ module Caoutsearch
           spawn.source!(false).limit!(0)
         end
 
-        def unscope(key)
-          spawn.unscope!(key)
+        def track_total_hits(...)
+          spawn.track_total_hits!(...)
         end
 
-        def prepend(hash)
-          spawn.prepend!(hash)
+        def prepend(...)
+          spawn.prepend!(...)
         end
 
-        def append(hash)
-          spawn.append!(hash)
+        def append(...)
+          spawn.append!(...)
+        end
+
+        def unscope(...)
+          spawn.unscope!(...)
         end
 
         # Setters
@@ -133,6 +137,11 @@ module Caoutsearch
         def source!(*values)
           @current_source ||= []
           @current_source += values.flatten
+          self
+        end
+
+        def track_total_hits!(value = true)
+          @track_total_hits = value
           self
         end
 

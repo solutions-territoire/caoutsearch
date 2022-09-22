@@ -23,6 +23,7 @@ module Caoutsearch
             apply_suggestions
             apply_fields
             apply_source
+            apply_total_hits_tracking
             apply_append_hash
           end
 
@@ -74,6 +75,10 @@ module Caoutsearch
 
         def apply_source
           elasticsearch_query[:_source] = current_source unless current_source.nil?
+        end
+
+        def apply_total_hits_tracking
+          elasticsearch_query[:track_total_hits] = @track_total_hits if @track_total_hits
         end
 
         def apply_prepend_hash
