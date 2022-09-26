@@ -61,7 +61,32 @@ module Caoutsearch
         end
 
         def records
-          model.where(model.primary_key => ids)
+          @records ||= begin
+            relation = model.where(model.primary_key => ids).extending do
+              attr_reader :hits
+
+              def hits=(values)
+                @hits = values
+              end
+
+              # Re-order records based on hits order
+              #
+              def records
+                return super if order_values.present? || @_reordered_records
+
+                load
+                puts "_reordered_records"
+                indexes  = @hits.each_with_index.to_h { |hit, index| [hit["_id"].to_s, index] }
+                @records = @records.sort_by { |record| indexes[record.id.to_s] }.freeze
+                @_reordered_records = true
+
+                @records
+              end
+            end
+
+            relation.hits = hits
+            relation
+          end
         end
 
         def each(&block)
