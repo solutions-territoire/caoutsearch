@@ -53,11 +53,11 @@ module Caoutsearch
         end
 
         def aggregations
-          # TODO
+          response.dig("aggregations")
         end
 
         def suggestions
-          # TODO
+          response.dig("suggest")
         end
 
         def records
@@ -75,7 +75,6 @@ module Caoutsearch
                 return super if order_values.present? || @_reordered_records
 
                 load
-                puts "_reordered_records"
                 indexes  = @hits.each_with_index.to_h { |hit, index| [hit["_id"].to_s, index] }
                 @records = @records.sort_by { |record| indexes[record.id.to_s] }.freeze
                 @_reordered_records = true
