@@ -4,11 +4,20 @@ module Caoutsearch
   module Search
     module Search
       module SearchMethods
+        extend ActiveSupport::Concern
+
         attr_reader :current_context, :current_order, :current_aggregations,
           :current_suggestions, :current_fields, :current_source
 
         # Public API
         # ------------------------------------------------------------------------
+        class_methods do
+          delegate :search, :context, :order, :page, :limit, :offset, :aggregate,
+            :suggest, :fields, :source, :without_sources, :without_hits,
+            :track_total_hits, :prepend, :append,
+            to: :new
+        end
+
         def search(...)
           spawn.search!(...)
         end

@@ -18,10 +18,6 @@ module Caoutsearch
       include Caoutsearch::Search::Search::Response
       include Caoutsearch::Search::Search::ScrollMethods
       include Caoutsearch::Search::Search::SearchMethods
-
-      def self.search(*args)
-        new.search(*args)
-      end
     end
   end
 end
