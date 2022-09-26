@@ -32,9 +32,13 @@ module Caoutsearch
           response.dig("hits", "max_score")
         end
 
+        def total
+          response.dig("hits", "total")
+        end
+
         def total_count
-          if response.dig("hits", "total", "relation") == "gte" && !@track_total_hits
-            @total_count ||= spawn.track_total_hits(true).total_count
+          if !@track_total_hits && (!loaded? || response.dig("hits", "total", "relation") == "gte")
+            @total_count ||= spawn.track_total_hits!(true).source!(false).limit!(0).total_count
           else
             response.dig("hits", "total", "value")
           end
@@ -69,6 +73,10 @@ module Caoutsearch
         def load
           @response = perform_search_query(build.to_h)
           self
+        end
+
+        def loaded?
+          !!@response
         end
 
         def perform_search_query(query)
