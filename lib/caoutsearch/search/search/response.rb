@@ -95,7 +95,7 @@ module Caoutsearch
         end
 
         def load
-          @response = perform_search_query(build.to_h)
+          @response = Caoutsearch::Search::Response.new(perform_search_query(build.to_h))
           self
         end
 
