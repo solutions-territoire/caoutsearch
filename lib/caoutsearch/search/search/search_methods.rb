@@ -12,7 +12,7 @@ module Caoutsearch
         # Public API
         # ------------------------------------------------------------------------
         class_methods do
-          delegate :search, :context, :order, :page, :limit, :offset, :aggregate,
+          delegate :search, :order, :page, :limit, :offset, :aggregate,
             :suggest, :fields, :source, :without_sources, :without_hits,
             :track_total_hits, :prepend, :append,
             to: :new
