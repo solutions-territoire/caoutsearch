@@ -6,11 +6,6 @@ module Caoutsearch
       module QueryBuilder
         extend ActiveSupport::Concern
 
-        included do
-          include ActiveSupport::Callbacks
-          define_callbacks :build
-        end
-
         def build
           run_callbacks :build do
             apply_prepend_hash

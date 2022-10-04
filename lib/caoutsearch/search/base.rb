@@ -7,6 +7,7 @@ module Caoutsearch
       include Caoutsearch::Config::Mappings
       include Caoutsearch::Config::Settings
 
+      include Caoutsearch::Search::Search::Callbacks
       include Caoutsearch::Search::Search::DeleteMethods
       include Caoutsearch::Search::Search::Inspect
       include Caoutsearch::Search::Search::Instrumentation
