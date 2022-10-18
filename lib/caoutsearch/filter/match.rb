@@ -6,9 +6,9 @@ module Caoutsearch
       def filter
         if use_query_string?
           {
-            query_string: {
+            simple_query_string: {
+              fields:           [key],
               query:            sanitized_for_query_string,
-              default_field:    key,
               default_operator: "and",
               analyze_wildcard: true
             }
