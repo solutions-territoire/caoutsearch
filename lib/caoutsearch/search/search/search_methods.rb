@@ -88,7 +88,7 @@ module Caoutsearch
         # Setters
         # ------------------------------------------------------------------------
         def search!(*values)
-          values = values.flatten.map do |value|
+          values = values.flatten.filter_map do |value|
             value = value.stringify_keys if value.is_a?(Hash)
             value
           end
