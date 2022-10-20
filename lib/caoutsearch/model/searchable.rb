@@ -23,7 +23,7 @@ module Caoutsearch
         end
 
         def search(...)
-          search_engine_class.new(...)
+          search_engine_class.new.search(...)
         end
       end
     end
