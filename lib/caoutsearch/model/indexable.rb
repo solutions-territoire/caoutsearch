@@ -19,23 +19,19 @@ module Caoutsearch
       end
 
       module ClassMethods
-        def reindex(*properties, **options)
-          index_engine_class.reindex(all, *properties, **options) do |records|
-            sync_indexation_to_elasticsearch8(records.map(&:id), properties)
-          end
+        def reindex(*properties, **options, &block)
+          index_engine_class.reindex(all, *properties, **options, &block)
         end
 
         def delete_indexes
           find_in_batches do |batch|
             ids = batch.map(&:id)
             index_engine_class.delete_documents(ids)
-            sync_deletion_to_elasticsearch8(ids)
           end
         end
 
         def delete_index(id)
           index_engine_class.delete_document(id)
-          sync_deletion_to_elasticsearch8(id)
         end
       end
 
@@ -50,12 +46,10 @@ module Caoutsearch
 
         def update_index(*properties)
           index_engine_class.new(self).update_document(*properties)
-          self.class.sync_indexation_to_elasticsearch8(id, properties)
         end
 
         def delete_index
           index_engine_class.new(self).delete_document
-          self.class.sync_deletion_to_elasticsearch8(id)
         end
       end
     end
