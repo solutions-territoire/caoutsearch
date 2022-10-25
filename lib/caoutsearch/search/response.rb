@@ -68,7 +68,7 @@ module Caoutsearch
       end
 
       def aggregations
-        @aggregations ||= Caoutsearch::Response::Aggregations.new(response.aggregations)
+        @aggregations ||= Caoutsearch::Response::Aggregations.new(response.aggregations, self)
       end
 
       def suggestions

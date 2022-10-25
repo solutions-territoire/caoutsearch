@@ -42,7 +42,7 @@ If you don't have scenarios as complex as those described in this documentation,
     - Custom filters
     - Orders
     - [Aggregations](#aggregations)
-    - Transform aggregations
+    - [Transform aggregations](#transform-aggregations)
     - [Responses](#responses)
     - [Loading records](#loading-records)
   - [Model integration](#model-integration)
@@ -282,6 +282,82 @@ ArticleSearch.aggregate(:view_count_2020, :view_count_2019).aggregations
 # ArticleSearch Search { "body": { "aggs": { "view_count_2020": {…}, "view_count_2019": {…}}}}
 # ArticleSearch Search (10ms / took 5ms)
 => #<Caoutsearch::Response::Aggregations view_count_2020=#<Caoutsearch::Response::Response …
+````
+
+#### Transform aggregations
+
+When using [buckets aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket.html) and/or [pipeline aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html), the path to the expected values can get complicated and become subject to unexpected changes for a public API.
+
+````ruby
+ArticleSearch.aggregate(popular_tags_since: 1.month.ago).aggregations.popular_tags_since.published.buckets.pluck(:key)
+=> ["Blog", "Tech", …]
+````
+
+Instead, you can define transformations to provide simpler access to aggregated data:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags_since do |since|
+    # …
+  end
+
+  transform_aggregation :popular_tags_since do |aggs|
+    aggs.dig(:popular_tags_since, :published, :buckets).pluck(:key)
+  end
+end
+
+ArticleSearch.aggregate(popular_tags_since: 1.month.ago).aggregations.popular_tags_since
+=> ["Blog", "Tech", …]
+````
+
+You can also use transformations to combine multiple aggregations:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :blog_count,     filter: { term: { category: "blog" } }
+  has_aggregation :archives_count, filter: { term: { archived: true } }
+
+  transform_aggregation :stats, from: %i[blog_count archives_count] do |aggs|
+    {
+      blog_count:     aggs.dig(:blog_count, :doc_count),
+      archives_count: aggs.dig(:archives, :doc_count)
+    }
+  end
+end
+
+ArticleSearch.aggregate(:stats).aggregations.stats
+# ArticleSearch Search { "body": { "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> { blog_count: 124, archives_count: 2452 }
+````
+
+This is also usefull to unify the API between different search engines:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags,
+    filter: { term: { published: true } },
+    aggs: { published: { terms: { field: :tags, size: 10 } } }
+
+  transform_aggregation :popular_tags do |aggs|
+    aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
+  end
+end
+
+class TagSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags,
+    terms: { field: "label", size: 20, order: { used_count: "desc" } }
+
+  transform_aggregation :popular_tags do |aggs|
+    aggs.dig(:popular_tags, :buckets).pluck(:key)
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Blog", "Tech", …]
+
+TagSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Tech", "Blog", …]
 ````
 
 #### Responses
