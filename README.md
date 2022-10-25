@@ -50,10 +50,10 @@ Caoutsearch is used in production in a robust application, updated and maintaine
       - [Delete documents](#delete-documents)
       - [Automatic Callbacks](#automatic-callbacks)
       - Asynchronous methods
-    - Search for records
-      - Search API
-      - Pagination
-      - Total count
+    - [Search for records](#search-for-records)
+      - [Search API](#search-api)
+      - [Pagination](#pagination)
+      - [Total count](#total-count)
       - Scroll records
 
 ## Installation
@@ -203,6 +203,76 @@ end
 ##### Asynchronous methods
 
 TODO
+
+#### Search for records
+
+##### Search API
+Searching is pretty simple.
+
+````ruby
+Article.search("Quick brown fox")
+=> #<ArticleSearch current_criteria: ["Quick brown fox"]>
+````
+
+You can chain criteria and many other parameters:
+````ruby
+Article.search("Quick brown fox").search(published: true)
+=> #<ArticleSearch current_criteria: ["Quick brown fox", {"published"=>true}]>
+
+Article.search("Quick brown fox").order(:publication_date)
+=> #<ArticleSearch current_criteria: ["Quick brown fox"], current_order: :publication_date>
+
+Article.search("Quick brown fox").limit(100).offset(100)
+=> #<ArticleSearch current_criteria: ["Quick brown fox"], current_limit: 100, current_offset: 100>
+
+Article.search("Quick brown fox").page(1).per(100)
+=> #<ArticleSearch current_criteria: ["Quick brown fox"], current_page: 1, current_limit: 100>
+
+Article.search("Quick brown fox").aggregate(:tags).aggregate(:dates)
+=> #<ArticleSearch current_criteria: ["Quick brown fox"], current_aggregations: [:tags, :dates]>>
+````
+
+##### Pagination
+
+Search results can be paginated.
+````ruby
+search = Article.search("Quick brown fox").page(1).per(100)
+search.current_page
+=> 1
+
+search.total_pages
+=> 2546
+
+> search.total_count
+=> 254514
+````
+
+##### Total count
+
+By default [ES doesn't return the total number of hits](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-your-data.html#track-total-hits). So, when calling `total_count` or `total_pages` a second request might be sent to ES.  
+To avoid a second roundtrip, use `track_total_hits`:
+
+````ruby 
+search = Article.search("Quick brown fox")
+search.hits
+# ArticleSearch Search {…}
+# ArticleSearch Search (81.8ms / took 16ms)
+=> […]
+
+search.total_count
+# ArticleSearch Search {…, track_total_hits: true }
+# ArticleSearch Search (135.3ms / took 76ms)
+=> 276
+
+search = Article.search("Quick brown fox").track_total_hits
+search.hits
+# ArticleSearch Search {…, track_total_hits: true }
+# ArticleSearch Search (120.2ms / took 56ms)
+=> […]
+
+search.total_count
+=> 276
+````
 
 ## Contributing
 
