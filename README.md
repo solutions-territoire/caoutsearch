@@ -360,6 +360,72 @@ TagSearch.aggregate(:popular_tags).aggregations.popular_tags
 => ["Tech", "Blog", …]
 ````
 
+Transformations are performed on demand and result is memorized. That means:
+- the result of transformation is not visible in the [Response::Aggregations](#responses) output.
+- the block is called only once for the same search instance.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags, …
+
+  transform_aggregation :popular_tags do |aggs|
+    tags       = aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
+    authorized = Tag.where(title: tags, authorize: true).pluck(:title)
+    tags & authorized
+  end
+end
+
+article_search = ArticleSearch.aggregate(:popular_tags)
+=> #<ArticleSearch current_aggregations: [:popular_tags]>
+
+article_search.aggregations
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations popular_tags=#<Caoutsearch::Response::Response doc_count=100 …
+
+article_search.aggregations.popular_tags
+# (10.2ms)  SELECT "tags"."title" FROM "tags" WHERE "tags"."title" IN …
+=> ["Blog", "Tech", …]
+
+article_search.aggregations.popular_tags
+=> ["Blog", "Tech", …]
+
+article_search.search("Tech").aggregations.popular_tags
+# ArticleSearch Search (10ms / took 5ms)
+# (10.2ms)  SELECT "tags"."title" FROM "tags" WHERE "tags"."title" IN …
+=> ["Blog", "Tech", …]
+````
+
+Be careful to avoid using `aggregations.<aggregation_name>` inside a transformation block: it can lead to an infinite recursion.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  transform_aggregation :popular_tags do
+    aggregations.popular_tags.buckets.pluck("key")
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+Traceback (most recent call last):
+      4: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      3: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      2: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      1: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+SystemStackError (stack level too deep)
+````
+
+Instead, use the argument passed to the block: it's is a shortcut for `response.aggregations` which is a [Response::Reponse](#responses) and not a [Response::Aggregations](#responses).
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  transform_aggregation :popular_tags do |aggs|
+    aggs.popular_tags.buckets.pluck("key")
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Blog", "Tech", …]
+````
+
 #### Responses
 
 After the request has been sent by calling a method such as `load`, `response` or `hits`, the results is wrapped in a `Response::Response` class which provides method access to its properties via [Hashie::Mash](http://github.com/intridea/hashie).

@@ -16,7 +16,9 @@ module Caoutsearch
 
       def custom_reader(key)
         if has_transformation?(key)
-          call_transformation(key)
+          transformation_cache(key) do
+            call_transformation(key)
+          end
         else
           super
         end
@@ -35,6 +37,13 @@ module Caoutsearch
         aggs = @source_search.response.aggregations
 
         @source_search.instance_exec(aggs, &item.block)
+      end
+
+      def transformation_cache(name)
+        @cached_transformations ||= {}
+        return @cached_transformations[name] if @cached_transformations.include?(name)
+
+        @cached_transformations[name] = yield
       end
     end
   end
