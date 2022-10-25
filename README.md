@@ -4,19 +4,84 @@
 [![CI Status](https://github.com/mon-territoire/caoutsearch/actions/workflows/ci.yml/badge.svg)](https://github.com/mon-territoire/caoutsearch/actions/workflows/ci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/maintainability)](https://codeclimate.com/github/mon-territoire/caoutsearch/maintainability)
 
-### Installation
+**!! Documentation is under development !!**
+
+Yet another Elasticsearch integration for Ruby and/or Rails.  
+Caoutsearch provides a simple but powerful DSL to perform complex indexing and searching,
+while securely exposing search criteria to a public API.
+
+If you don't have such complex scenarios, maybe you should look at other awesome gems such as [elasticsearch-rails](https://github.com/elastic/elasticsearch-rails), [search_flip](https://github.com/mrkamel/search_flip) or [searchkick](https://github.com/ankane/searchkick) which will better suite your needs and were an important source of inspiration for this project.
+
+Caoutsearch supports Elasticsearch 8.x only.  
+Elasticsearch client and API is provided by the [elasticsearch-ruby](https://github.com/elastic/elasticsearch-ruby) project.
+
+Caoutsearch is used in production in a robust application, updated and maintained for several years at [Mon Territoire](https://mon-territoire.fr).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - Instrumentation
+- [Usage](#usage)
+  - [Indice Configuration](#indice-configuration)
+    - Mapping & settings
+    - Text analysis
+    - Versionning
+  - [Index Engine](#index-engine)
+    - Properties
+    - Partial updates
+    - Eager loading
+    - Interdependencies
+  - [Search Engine](#search-engine)
+    - Queries
+    - Filters
+    - Full-text query
+    - Custom filters
+    - Orders
+    - Aggregations
+    - Transform
+    - Responses
+    - Loading
+  - [Model integration](#model-integration)
+    - Add Caoutsearch to your models
+    - Index records
+      - Index multiple records
+      - Index single records
+      - Delete documents
+      - Automatic Callbacks
+    - Search for records
+      - Search API
+      - Pagination
+      - Total count
+      - Scroll records
+
+## Installation
 
 ```bash
 bundle add caoutsearch
 ```
 
-### Configuration
+## Configuration
 
-<!-- TODO -->
+TODO
 
-### Usage
+## Usage
 
-<!-- TODO -->
+### Indice Configuration
+
+TODO
+
+### Index Engine
+
+TODO
+
+### Search Engine
+
+TODO
+
+### Model integration
+
+TODO
 
 ## Contributing
 
