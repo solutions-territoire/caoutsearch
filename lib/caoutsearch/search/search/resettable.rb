@@ -19,9 +19,13 @@ module Caoutsearch
         def reset
           reset_variable(:@elasticsearch_query)
           reset_variable(:@nested_queries)
+          reset_variable(:@raw_response)
           reset_variable(:@response)
           reset_variable(:@records)
           reset_variable(:@total_count)
+          reset_variable(:@aggregations)
+          reset_variable(:@aggregations)
+          @loaded = false
           self
         end
 

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "zeitwerk"
+require "hashie"
+
 loader = Zeitwerk::Loader.for_gem
 loader.inflector.inflect(
   "dsl" => "DSL",

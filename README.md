@@ -40,8 +40,8 @@ Caoutsearch is used in production in a robust application, updated and maintaine
     - Orders
     - Aggregations
     - Transform
-    - Responses
-    - Loading
+    - [Responses](#responses)
+    - [Loading records](#loading-records)
   - [Model integration](#model-integration)
     - [Add Caoutsearch to your models](#add-caoutsearch-to-your-models)
     - [Index records](#index-records)
@@ -78,7 +78,64 @@ TODO
 
 ### Search Engine
 
-TODO
+#### Responses
+
+After the request has been sent by calling a method such as `load`, `response` or `hits`, the results is wrapped in a `Response::Response` class which provides method access to its properties via [Hashie::Mash](http://github.com/intridea/hashie).
+
+Aggregations and suggestions are wrapped in their own respective subclass of `Response::Response`
+
+````ruby
+results.response
+=> #<Caoutsearch::Response::Response _shards=#<Caoutsearch::Response::Response failed=0 skipped=0 successful=5 total=5> hits=…
+
+search.hits
+=> #<Hashie::Array [#<Caoutsearch::Response::Response _id="2"…
+
+search.aggregations
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response…
+
+search.suggestions
+=> #<Caoutsearch::Response::Suggestions tags=#<Caoutsearch::Response::Response…
+````
+
+##### Loading records
+
+When calling `records`, the search engine will try to load records from a model using the same class name without `Search` the suffix:  
+* `ArticleSearch` > `Article`
+* `Blog::ArticleSearch` > `Blog::Article`
+
+````ruby
+ArticleSearch.new.records.first
+# ArticleSearch Search (10ms / took 5ms)
+# Article Load (9.6ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" IN (1, …
+=> #<Article id: 1, …>
+````
+
+However, you can define an alternative model to load records. This might be helpful when using [single table inheritance](https://api.rubyonrails.org/classes/ActiveRecord/Inheritance.html).
+
+````ruby
+ArticleSearch.new.records(use: BlogArticle).first
+# ArticleSearch Search (10ms / took 5ms)
+# BlogArticle Load (9.6ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" IN (1, …
+=> #<BlogArticle id: 1, …>
+````
+
+You can also define an alternative model at class level:
+
+````ruby
+class BlogArticleSearch < Caoutsearch::Search::Base
+  self.model_name = "Article"
+
+  default do
+    query.filters << { term: { category: "blog" } }
+  end
+end
+
+BlogArticleSearch.new.records.first
+# BlogArticleSearch Search (10ms / took 5ms)
+# Article Load (9.6ms)  SELECT "articles".* FROM "articles" WHERE "articles"."id" IN (1, …
+=> #<Article id: 1, …>
+````
 
 ### Model integration
 
