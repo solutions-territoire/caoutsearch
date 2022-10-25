@@ -43,7 +43,7 @@ Caoutsearch is used in production in a robust application, updated and maintaine
     - Responses
     - Loading
   - [Model integration](#model-integration)
-    - Add Caoutsearch to your models
+    - [Add Caoutsearch to your models](#add-caoutsearch-to-your-models)
     - Index records
       - Index multiple records
       - Index single records
@@ -81,7 +81,30 @@ TODO
 
 ### Model integration
 
-TODO
+#### Add Caoutsearch to your models
+
+The simplest solution is to add `Caoutsearch::Model` to your model:
+````ruby
+class ApplicationRecord < ActiveRecord::Base
+  include Caoutsearch::Model
+end
+````
+
+If you don't need your models to be `Indexable` and `Searchable`, you can include only one of the following two modules:
+````ruby
+class ApplicationRecord < ActiveRecord::Base
+  include Caoutsearch::Model::Indexable
+  include Caoutsearch::Model::Searchable
+end
+````
+
+Then, link each model to the appropriate `Index` and/or `Search` engines:
+````ruby
+class Article < ApplicationRecord
+  index_with ArticleIndex
+  search_with ArticleIndex
+end
+````
 
 ## Contributing
 
