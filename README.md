@@ -41,8 +41,8 @@ If you don't have scenarios as complex as those described in this documentation,
     - Full-text query
     - Custom filters
     - Orders
-    - Aggregations
-    - Transform
+    - [Aggregations](#aggregations)
+    - Transform aggregations
     - [Responses](#responses)
     - [Loading records](#loading-records)
   - [Model integration](#model-integration)
@@ -180,6 +180,43 @@ We also support elasticsearch's date math
 ##### Match filter
 
 ##### Range filter
+
+#### Aggregations
+
+You can define simple to complex aggregations.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :view_count, sum: { field: :view_count }
+  has_aggregation :popular_tags,
+    filter: { term: { published: true } },
+    aggs: {
+      published: {
+        terms: { field: :tags, size: 10 }
+      }
+    }
+end
+````
+
+Then you can request one or more aggregations at the same time or chain the `aggregate` method.  
+The `aggregations` method will trigger a request and returns a [Response::Aggregations](#responses).
+
+````ruby
+ArticleSearch.aggregate(:view_count).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": { "sum": { "field": "view_count" }}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652>>
+
+ArticleSearch.aggregate(:view_count, :popular_tags).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": {…}, "popular_tags": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652> popular_tags=#<Caoutsearch::Response::Response buckets=…>>
+
+ArticleSearch.aggregate(:view_count).aggregate(:popular_tags).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": {…}, "popular_tags": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652> popular_tags=#<Caoutsearch::Response::Response buckets=…>>
+````
 
 #### Responses
 
