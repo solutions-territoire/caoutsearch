@@ -63,9 +63,7 @@ module Caoutsearch
               raise_enhance_message_when_scroll_failed(e, scroll, requested_at, last_response_time)
             end
 
-            hits       = results["hits"]["hits"]
-            progress  += hits.size
-
+            hits = results["hits"]["hits"]
             break if hits.empty?
 
             yield hits, { progress: progress, total: total, scroll_id: scroll_id }
