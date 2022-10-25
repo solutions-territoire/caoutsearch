@@ -426,6 +426,37 @@ ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
 => ["Blog", "Tech", …]
 ````
 
+One last helpful argument is `track_total_hits` which allows to perform calculations over aggregations using the `total_count` method without sending a second request.  
+Take a look at [Total count](#total-count) to understand why a second request could be performed.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  aggregation :tagged, filter: { exist: "tag" }
+
+  transform_aggregation :tagged_rate, from: :tagged, track_total_hits: true do |aggs|
+    count = aggs.dig(:tagged, :doc_count)
+    count.to_f / total_count
+  end
+
+  transform_aggregation :tagged_rate_without_track_total_hits, from: :tagged do |aggs|
+    count = aggs.dig(:tagged, :doc_count)
+    count.to_f / total_count
+  end
+end
+
+ArticleSearch.aggregate(:tagged_rate).aggregations.tagged_rate
+# ArticleSearch Search { "body": { "track_total_hits": true, "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> 0.95
+
+ArticleSearch.aggregate(:tagged_rate_without_track_total_hits).aggregations.tagged_rate
+# ArticleSearch Search { "body": { "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+# ArticleSearch Search { "body": { "track_total_hits": true, "aggs": { "blog_count": {…}, "archives_count": 
+# ArticleSearch Search (10ms / took 5ms)
+=> 0.95
+````
+
 #### Responses
 
 After the request has been sent by calling a method such as `load`, `response` or `hits`, the results is wrapped in a `Response::Response` class which provides method access to its properties via [Hashie::Mash](http://github.com/intridea/hashie).

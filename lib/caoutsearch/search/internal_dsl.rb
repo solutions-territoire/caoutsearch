@@ -81,7 +81,7 @@ module Caoutsearch
           end
         end
 
-        def transform_aggregation(name, from: nil, &block)
+        def transform_aggregation(name, from: nil, track_total_hits: false, &block)
           name = name.to_s
           dependencies = Array.wrap(from).map(&:to_s)
 
@@ -91,6 +91,7 @@ module Caoutsearch
             raise ArgumentError, "aggregation #{name} is missing, you may have to define :requires" if dependencies.empty?
 
             has_aggregation(name) do |*args|
+              track_total_hits! if track_total_hits
               dependencies.each do |dependency|
                 call_aggregation(dependency, *args)
               end
