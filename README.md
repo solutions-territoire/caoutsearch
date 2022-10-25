@@ -44,11 +44,12 @@ Caoutsearch is used in production in a robust application, updated and maintaine
     - Loading
   - [Model integration](#model-integration)
     - [Add Caoutsearch to your models](#add-caoutsearch-to-your-models)
-    - Index records
-      - Index multiple records
-      - Index single records
-      - Delete documents
-      - Automatic Callbacks
+    - [Index records](#index-records)
+      - [Index multiple records](#index-multiple-records)
+      - [Index single records](#index-single-records)
+      - [Delete documents](#delete-documents)
+      - [Automatic Callbacks](#automatic-callbacks)
+      - Asynchronous methods
     - Search for records
       - Search API
       - Pagination
@@ -105,6 +106,103 @@ class Article < ApplicationRecord
   search_with ArticleIndex
 end
 ````
+
+#### Index records
+
+##### Index multiple records
+
+Import all your records or a restricted scope of records to Elastcisearch.
+
+````ruby
+Article.reindex
+Article.where(published: true).reindex
+````
+
+You can update one or more properties. (see [Indexation Engines](#indexation-engines) to read more about properties):
+
+````ruby
+Article.reindex(:category)
+Article.reindex(%i[category published_on])
+````
+
+When `reindex` is called without properties, it'll import the full document to ES.  
+On the contrary, when properties are passed, it'll only update existing documents.  
+You can control this behavior with the `method` argument.
+
+````ruby
+Article.where(id: 123).reindex(:category)
+# ArticleIndex Reindex {"index":"articles","body":[{"update":{"_id":123}},{"doc":{"category":"blog"}}]}
+# [Error] {"update"=>{"_index"=>"articles", "_id"=>"123", "status"=>404, "error"=>{"type"=>"document_missing_exception", …}}
+
+Article.where(id: 123).reindex(:category, method: :index)
+# ArticleIndex Reindex {"index":"articles","body":[{"index":{"_id":123}},{"category":"blog"}]}
+
+Article.where(id: 123).reindex(method: :update)
+# ArticleIndex Reindex {"index":"articles","body":[{"update":{"_id":123}},{"doc":{…}}]}
+````
+
+##### Index single records
+
+Import a single record.
+
+````ruby
+Article.find(123).update_index
+````
+
+You can update one or more properties. (see [Indexation Engines](#indexation-engines) to read more about properties):
+
+````ruby
+Article.find(123).update_index(:category)
+Article.find(123).update_index(%i[category published_on])
+````
+
+You can verify if and how documents are indexed.  
+If the document is missing in ES, it'll raise a `Elastic::Transport::Transport::Errors::NotFound`.
+
+````ruby
+Article.find(123).indexed_document
+# Traceback (most recent call last):
+#         1: from (irb):1
+# Elastic::Transport::Transport::Errors::NotFound ([404] {"_index":"articles","_id":"123","found":false})
+
+Article.find(123).update_index
+Article.find(123).indexed_document
+=> {"_index"=>"articles", "_id"=>"123", "_version"=>1"found"=>true, "_source"=>{…}}
+````
+
+##### Delete documents
+
+You can delete one or more documents.  
+**Note**: it won't delete records from database, only from the ES indice.
+
+````ruby
+Article.delete_indexes
+Article.where(id: 123).delete_indexed_documents
+Article.find(123).delete_index
+````
+
+If a record is already deleted from the database, you can still delete its document.
+
+````ruby
+Article.delete_index(123)
+````
+
+##### Automatic Callbacks
+
+Callbacks are not provided by Caoutsearch but they are very easy to add:
+
+````ruby
+class Article < ApplicationRecord
+  index_with ArticleIndex
+  
+  after_commit :update_index, on: %i[create update]
+  after_commit :delete_index, on: %i[destroy]
+end
+````
+
+##### Asynchronous methods
+
+TODO
 
 ## Contributing
 
