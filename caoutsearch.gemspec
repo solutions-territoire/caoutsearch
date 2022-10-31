@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport", ">= 5.0"
   s.add_dependency "elasticsearch", "~> 8.x"
   s.add_dependency "hashie", "~> 5.0"
+  s.add_dependency "multi_json", "~> 1.15"
   s.add_dependency "zeitwerk", "~> 2.6"
 
   s.add_development_dependency "bundler"

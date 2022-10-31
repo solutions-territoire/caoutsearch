@@ -28,7 +28,7 @@ module Caoutsearch
           path = ::Rails.root.join("config/elasticsearch/#{index_name}.json")
           raise ArgumentError, "No mappings file found for #{index_name} at #{path}" unless path.exist?
 
-          JSON.parse(path.read)
+          MultiJson.load(path.read)
         end
 
         def get_remote_mappings

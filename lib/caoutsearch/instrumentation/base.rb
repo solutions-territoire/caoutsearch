@@ -53,16 +53,16 @@ module Caoutsearch
         when "amazing_print", "awesome_print"
           body.ai(limit: true, index: false)
         when "full"
-          json = JSON.dump(body)
+          json = MultiJson.dump(body)
           color(json, BLUE, true)
         when "truncated"
-          json = JSON.dump(body).truncate(200, omission: "…}")
+          json = MultiJson.dump(body).truncate(200, omission: "…}")
           color(json, BLUE, true)
         end
       end
 
       def inspect_json_size(json)
-        ApplicationController.helpers.number_to_human_size(JSON.dump(json).bytesize)
+        ApplicationController.helpers.number_to_human_size(MultiJson.dump(json).bytesize)
       end
     end
   end
