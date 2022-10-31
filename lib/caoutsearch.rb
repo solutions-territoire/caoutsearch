@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "active_support/core_ext/module"
+require "active_support/core_ext/class"
+require "elasticsearch"
 require "zeitwerk"
 require "hashie"
 
