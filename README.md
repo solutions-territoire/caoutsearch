@@ -2,9 +2,11 @@
 
 [![Gem Version](https://badge.fury.io/rb/caoutsearch.svg)](https://rubygems.org/gems/caoutsearch)
 [![CI Status](https://github.com/mon-territoire/caoutsearch/actions/workflows/ci.yml/badge.svg)](https://github.com/mon-territoire/caoutsearch/actions/workflows/ci.yml)
-[![Maintainability](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/maintainability)](https://codeclimate.com/github/mon-territoire/caoutsearch/maintainability)
+[![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
+[![Maintainability](https://api.codeclimate.com/v1/badges/fbe73db3fd8be9a10e12/maintainability)](https://codeclimate.com/github/mon-territoire/caoutsearch/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/fbe73db3fd8be9a10e12/test_coverage)](https://codeclimate.com/github/mon-territoire/caoutsearch/test_coverage)
 
-**!! Documentation is under development !!**
+**!! Gem under development !!**
 
 Yet another Elasticsearch integration for Ruby and/or Rails.  
 Caoutsearch provides a simple but powerful DSL to perform complex indexing and searching,
@@ -344,9 +346,10 @@ search.total_count
 ```bash
 bundle exec rspec
 bundle exec rubocop
+bundle exec standardrb
 ```
 
-Both can be run with:
+All of them can be run with:
 
 ```bash
 bundle exec rake

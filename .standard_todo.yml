@@ -1,0 +1,82 @@
+# Auto generated files with errors to ignore.
+# Remove from this list as you refactor files.
+---
+ignore:
+- caoutsearch.gemspec:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/filter/base.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/boolean.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/date.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+  - Layout/ExtraSpacing
+- lib/caoutsearch/filter/default.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/geo_point.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/match.rb:
+  - Layout/HashAlignment
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/none.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/filter/range.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/index/document.rb:
+  - Layout/HashAlignment
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/index/indice_versions.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/index/internal_dsl.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/index/reindex.rb:
+  - Layout/ExtraSpacing
+  - Layout/HashAlignment
+- lib/caoutsearch/index/scoping.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/index/serialization.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/instrumentation/base.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/instrumentation/search.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/callbacks.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/delete_methods.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/dsl/item.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/query/boolean.rb:
+  - Layout/ExtraSpacing
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/search/query/nested.rb:
+  - Layout/SpaceInsideHashLiteralBraces
+- lib/caoutsearch/search/query/setters.rb:
+  - Layout/HashAlignment
+- lib/caoutsearch/search/query_builder.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/query_methods.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/response.rb:
+  - Layout/ExtraSpacing
+  - Layout/HashAlignment
+- lib/caoutsearch/search/sanitizer.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/scroll_methods.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/type_cast.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/search/value.rb:
+  - Layout/ExtraSpacing
+  - Layout/HashAlignment
+- lib/caoutsearch/search/value_overflow.rb:
+  - Layout/ExtraSpacing
+- lib/caoutsearch/testing/mock_requests.rb:
+  - Layout/ExtraSpacing
+- spec/caoutsearch/search/response_spec.rb:
+  - Layout/ExtraSpacing

@@ -3,6 +3,9 @@
 require "bundler/setup"
 Bundler.setup
 
+require "simplecov"
+SimpleCov.start
+
 require "caoutsearch"
 require "webmock/rspec"
 require "amazing_print"

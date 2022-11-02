@@ -22,16 +22,4 @@ Gem::Specification.new do |s|
   s.add_dependency "hashie", "~> 5.0"
   s.add_dependency "multi_json", "~> 1.15"
   s.add_dependency "zeitwerk", "~> 2.6"
-
-  s.add_development_dependency "amazing_print"
-  s.add_development_dependency "bundler"
-  s.add_development_dependency "gem-release"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rspec"
-  s.add_development_dependency "rubocop"
-  s.add_development_dependency "rubocop-rake"
-  s.add_development_dependency "rubocop-rspec"
-  s.add_development_dependency "rubocop-performance"
-  s.add_development_dependency "standard"
-  s.add_development_dependency "webmock"
 end
