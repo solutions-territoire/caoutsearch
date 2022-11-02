@@ -14,7 +14,7 @@ module Caoutsearch
           elsif terms_without_none.size == 1
             filters << terms_without_none[0]
           elsif terms_without_none.size > 1
-            filters << { bool: { should: terms_without_none } }
+            filters << {bool: {should: terms_without_none}}
           end
         end
 

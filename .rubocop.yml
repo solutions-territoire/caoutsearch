@@ -17,3 +17,6 @@ AllCops:
   NewCops: enable
   Exclude:
     - '**/vendor/**/*'
+
+RSpec/ExampleLength:
+  Enabled: false

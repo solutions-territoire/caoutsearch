@@ -7,18 +7,18 @@ module Caoutsearch
       include Caoutsearch::Config::Mappings
       include Caoutsearch::Config::Settings
 
-      include Caoutsearch::Search::Search::Callbacks
-      include Caoutsearch::Search::Search::DeleteMethods
-      include Caoutsearch::Search::Search::Inspect
-      include Caoutsearch::Search::Search::Instrumentation
-      include Caoutsearch::Search::Search::InternalDSL
-      include Caoutsearch::Search::Search::Naming
-      include Caoutsearch::Search::Search::QueryBuilder
-      include Caoutsearch::Search::Search::QueryMethods
-      include Caoutsearch::Search::Search::Resettable
-      include Caoutsearch::Search::Search::Response
-      include Caoutsearch::Search::Search::ScrollMethods
-      include Caoutsearch::Search::Search::SearchMethods
+      include Caoutsearch::Search::Callbacks
+      include Caoutsearch::Search::DeleteMethods
+      include Caoutsearch::Search::Inspect
+      include Caoutsearch::Search::Instrumentation
+      include Caoutsearch::Search::InternalDSL
+      include Caoutsearch::Search::Naming
+      include Caoutsearch::Search::QueryBuilder
+      include Caoutsearch::Search::QueryMethods
+      include Caoutsearch::Search::Resettable
+      include Caoutsearch::Search::Response
+      include Caoutsearch::Search::ScrollMethods
+      include Caoutsearch::Search::SearchMethods
     end
   end
 end
