@@ -6,18 +6,16 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/fbe73db3fd8be9a10e12/maintainability)](https://codeclimate.com/github/mon-territoire/caoutsearch/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/fbe73db3fd8be9a10e12/test_coverage)](https://codeclimate.com/github/mon-territoire/caoutsearch/test_coverage)
 
-**!! Gem under development !!**
+**!! Gem under development before public release !!**
 
-Yet another Elasticsearch integration for Ruby and/or Rails.  
-Caoutsearch provides a simple but powerful DSL to perform complex indexing and searching,
-while securely exposing search criteria to a public API.
+Caoutsearch is a new Elasticsearch integration for Ruby and/or Rails.  
+It provides a simple but powerful DSL to perform complex indexing and searching, while securely exposing search criteria to a public and chainable API, without overwhelming your models.
 
-If you don't have such complex scenarios, maybe you should look at other awesome gems such as [elasticsearch-rails](https://github.com/elastic/elasticsearch-rails), [search_flip](https://github.com/mrkamel/search_flip) or [searchkick](https://github.com/ankane/searchkick) which will better suite your needs and were an important source of inspiration for this project.
+Caoutsearch only supports Elasticsearch 8.x right now.  
+It is used in production in a robust application, updated and maintained for several years at [Mon Territoire](https://mon-territoire.fr).
 
-Caoutsearch supports Elasticsearch 8.x only.  
-Elasticsearch client and API is provided by the [elasticsearch-ruby](https://github.com/elastic/elasticsearch-ruby) project.
-
-Caoutsearch is used in production in a robust application, updated and maintained for several years at [Mon Territoire](https://mon-territoire.fr).
+Caoutsearch was inspired by awesome gems such as [elasticsearch-rails](https://github.com/elastic/elasticsearch-rails) or [search_flip](https://github.com/mrkamel/search_flip). 
+If you don't have scenarios as complex as those described in this documentation, they should better suite your needs.
 
 ## Table of Contents
 
@@ -143,26 +141,41 @@ BlogArticleSearch.new.records.first
 
 #### Add Caoutsearch to your models
 
-The simplest solution is to add `Caoutsearch::Model` to your model:
+The simplest solution is to add `Caoutsearch::Model` to your model and the link the appropriate `Index` and/or `Search` engines:
+
+```ruby
+class Article < ActiveRecord::Base
+  include Caoutsearch::Model
+
+  index_with ArticleIndex
+  search_with ArticleSearch
+end
+```
+
+If you don't need your models to be `Indexable` and `Searchable`, you can include only one of the following two modules:
+
+````ruby
+class Article < ActiveRecord::Base
+  include Caoutsearch::Model::Indexable
+
+  index_with ArticleIndex
+end
+````
+or
+````ruby
+class Article < ActiveRecord::Base
+  include Caoutsearch::Model::Searchable
+
+  search_with ArticleSearch
+end
+````
+
+The modules can be safely included in the meta model `ApplicationRecord`.
+Indexing & searching features are not available until you call `index_with` or `search_with`:
+
 ````ruby
 class ApplicationRecord < ActiveRecord::Base
   include Caoutsearch::Model
-end
-````
-
-If you don't need your models to be `Indexable` and `Searchable`, you can include only one of the following two modules:
-````ruby
-class ApplicationRecord < ActiveRecord::Base
-  include Caoutsearch::Model::Indexable
-  include Caoutsearch::Model::Searchable
-end
-````
-
-Then, link each model to the appropriate `Index` and/or `Search` engines:
-````ruby
-class Article < ApplicationRecord
-  index_with ArticleIndex
-  search_with ArticleIndex
 end
 ````
 
