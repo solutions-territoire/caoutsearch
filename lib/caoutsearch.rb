@@ -3,15 +3,15 @@
 require "active_support/core_ext/module"
 require "active_support/core_ext/class"
 require "elasticsearch"
-require "zeitwerk"
 require "hashie"
+require "zeitwerk"
 
 loader = Zeitwerk::Loader.for_gem
-loader.inflector.inflect(
-  "dsl" => "DSL",
-  "internal_dsl" => "InternalDSL",
-  "none" => "NONE"
-)
+loader.ignore("#{__dir__}/caoutsearch/testing.rb")
+loader.ignore("#{__dir__}/caoutsearch/testing")
+loader.inflector.inflect("dsl" => "DSL")
+loader.inflector.inflect("internal_dsl" => "InternalDSL")
+loader.inflector.inflect("none" => "NONE")
 loader.setup
 
 module Caoutsearch

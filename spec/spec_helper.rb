@@ -7,6 +7,7 @@ require "simplecov"
 SimpleCov.start
 
 require "caoutsearch"
+require "caoutsearch/testing"
 require "webmock/rspec"
 require "amazing_print"
 
