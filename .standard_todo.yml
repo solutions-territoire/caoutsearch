@@ -76,7 +76,5 @@ ignore:
   - Layout/HashAlignment
 - lib/caoutsearch/search/value_overflow.rb:
   - Layout/ExtraSpacing
-- lib/caoutsearch/testing/mock_requests.rb:
-  - Layout/ExtraSpacing
 - spec/caoutsearch/search/response_spec.rb:
   - Layout/ExtraSpacing
