@@ -46,7 +46,7 @@ module Caoutsearch
 
       def apply_limits
         elasticsearch_query[:size] = current_limit.to_i if @current_page || @current_limit
-        elasticsearch_query[:from] = current_offset     if @current_page || @current_offset
+        elasticsearch_query[:from] = current_offset if @current_page || @current_offset
       end
 
       def apply_orders

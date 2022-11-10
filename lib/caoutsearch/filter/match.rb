@@ -7,16 +7,16 @@ module Caoutsearch
         if use_query_string?
           {
             simple_query_string: {
-              fields:           [key],
-              query:            sanitized_for_query_string,
+              fields: [key],
+              query: sanitized_for_query_string,
               default_operator: "and",
               analyze_wildcard: true
             }
           }
         elsif multiple_words?
-          { match: { key => { query: value, operator: "and" } } }
+          {match: {key => {query: value, operator: "and"}}}
         else
-          { match: { key => value } }
+          {match: {key => value}}
         end
       end
 

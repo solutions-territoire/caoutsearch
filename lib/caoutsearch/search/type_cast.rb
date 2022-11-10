@@ -23,17 +23,17 @@ module Caoutsearch
 
         def cast_as_integer(value)
           case value
-          when nil      then nil
-          when Array    then value.map { |v| cast_as_integer(v) }
-          when String   then value.delete(" ").to_i
+          when nil then nil
+          when Array then value.map { |v| cast_as_integer(v) }
+          when String then value.delete(" ").to_i
           else value.to_i
           end
         end
 
         def cast_as_float(value)
           case value
-          when nil    then nil
-          when Array  then value.map { |v| cast_as_float(v) }
+          when nil then nil
+          when Array then value.map { |v| cast_as_float(v) }
           when String then value.to_s.delete(" ").tr(",", ".").to_f
           else value.to_f
           end

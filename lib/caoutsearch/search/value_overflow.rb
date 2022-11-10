@@ -6,7 +6,7 @@ module Caoutsearch
       attr_reader :value, :limit, :type
 
       def initialize(type, value, limit)
-        @type  = type
+        @type = type
         @value = value
         @limit = limit
 

@@ -8,11 +8,11 @@ module Caoutsearch
       def log_request(subject, event, format: nil)
         return unless format
 
-        payload  = event.payload
-        request  = payload[:request]
+        payload = event.payload
+        request = payload[:request]
 
         debug do
-          title        = color("#{payload[:klass]} #{subject}", GREEN, true)
+          title = color("#{payload[:klass]} #{subject}", GREEN, true)
           request_body = format_request_body(request, format: format)
 
           message = "  #{title} #{request_body}"
@@ -22,20 +22,20 @@ module Caoutsearch
       end
 
       def log_response(subject, event, warn_errors: false)
-        payload  = event.payload
+        payload = event.payload
         response = payload[:response]
         return unless response
 
         debug do
-          title     = color("#{payload[:klass]} #{subject}", GREEN, true)
+          title = color("#{payload[:klass]} #{subject}", GREEN, true)
 
-          duration  = "#{event.duration.round(1)}ms"
+          duration = "#{event.duration.round(1)}ms"
           duration += " / took #{response["took"]}ms" if response.key?("took")
-          duration  = color("(#{duration})", GREEN, true)
+          duration = color("(#{duration})", GREEN, true)
 
-          message  = "  #{title} #{duration}"
+          message = "  #{title} #{duration}"
           message += " got errors" if response["errors"]
-          message  = yield(message, payload) if block_given?
+          message = yield(message, payload) if block_given?
 
           message
         end

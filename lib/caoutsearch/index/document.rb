@@ -13,11 +13,11 @@ module Caoutsearch
       def indexed_document
         request_payload = {
           index: index_name,
-          id:    record.id
+          id: record.id
         }
 
         response = instrument(:get) do |event_payload|
-          event_payload[:request]  = request_payload
+          event_payload[:request] = request_payload
           event_payload[:response] = client.get(request_payload)
         end
 
@@ -33,21 +33,21 @@ module Caoutsearch
       def update_document(*keys, index: index_name, refresh: false)
         request_payload = {
           index: index,
-          id:    id
+          id: id
         }
 
         if keys.empty?
           request_payload[:body] = as_json
 
           instrument(:index) do |event_payload|
-            event_payload[:request]  = request_payload
+            event_payload[:request] = request_payload
             event_payload[:response] = client.index(request_payload)
           end
         else
           request_payload[:body] = bulkify(:update, keys)
 
           instrument(:bulk, method: :update) do |event_payload|
-            event_payload[:request]  = request_payload
+            event_payload[:request] = request_payload
             event_payload[:response] = client.bulk(request_payload)
           end
         end
@@ -71,13 +71,13 @@ module Caoutsearch
         #
         def delete_document(id, index: index_name, refresh: false)
           request_payload = {
-            index:  index,
-            id:     id,
+            index: index,
+            id: id,
             ignore: 404
           }
 
           instrument(:delete) do |event_payload|
-            event_payload[:request]  = request_payload
+            event_payload[:request] = request_payload
             event_payload[:response] = client.delete(request_payload)
           end
 
@@ -90,12 +90,12 @@ module Caoutsearch
         #
         def delete_documents(ids, index: index_name, refresh: false)
           request_payload = {
-            index:  index,
-            body:   ids.map { |id| { delete: { _id: id } } }
+            index: index,
+            body: ids.map { |id| {delete: {_id: id}} }
           }
 
           instrument(:bulk, method: :delete) do |event_payload|
-            event_payload[:request]  = request_payload
+            event_payload[:request] = request_payload
             event_payload[:response] = client.bulk(request_payload)
           end
 

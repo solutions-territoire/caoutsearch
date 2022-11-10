@@ -32,17 +32,17 @@ module Caoutsearch
           records = apply_scopes(records, keys)
           records = records.strict_loading
 
-          index            = options.fetch(:index, index_name)
-          refresh          = options.fetch(:refresh, false)
-          method           = options.fetch(:method) { keys.present? ? :update : :index }
-          batch_size       = options[:batch_size] || 100
-          total            = options[:total] || records.count(:all)
-          progress         = options[:progress]
+          index = options.fetch(:index, index_name)
+          refresh = options.fetch(:refresh, false)
+          method = options.fetch(:method) { keys.present? ? :update : :index }
+          batch_size = options[:batch_size] || 100
+          total = options[:total] || records.count(:all)
+          progress = options[:progress]
           current_progress = 0
 
           return if total.zero?
 
-          progress&.total    = total
+          progress&.total = total
           progress&.progress = current_progress
 
           finder = if total <= batch_size
@@ -53,13 +53,13 @@ module Caoutsearch
 
           finder.each do |batch|
             current_progress += batch.size
-            request_payload   = {
-              index:  index,
-              body:   bulkify(batch, method, keys)
+            request_payload = {
+              index: index,
+              body: bulkify(batch, method, keys)
             }
 
             instrument(:reindex, total: total, progress: current_progress, records: batch) do |event_payload|
-              event_payload[:request]  = request_payload
+              event_payload[:request] = request_payload
               event_payload[:response] = client.bulk(request_payload)
             end
 

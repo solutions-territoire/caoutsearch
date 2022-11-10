@@ -6,12 +6,12 @@ module Caoutsearch
       attr_reader :original_value, :type, :null_values, :transform_proc, :overflow_strategy
 
       def initialize(original_value, type, null_values: nil, transform: nil, sanitize: false)
-        @original_value    = original_value
-        @type              = type
-        @null_values       = Array.wrap(null_values)
-        @sanitize_value    = sanitize
-        @transform_proc    = transform
-        @transform_proc    = transform.to_proc if transform.is_a?(Symbol)
+        @original_value = original_value
+        @type = type
+        @null_values = Array.wrap(null_values)
+        @sanitize_value = sanitize
+        @transform_proc = transform
+        @transform_proc = transform.to_proc if transform.is_a?(Symbol)
       end
 
       def value
@@ -50,7 +50,7 @@ module Caoutsearch
 
           if range
             raise Caoutsearch::Search::ValueOverflow.new(:lower, value, range.first) if value < range.first
-            raise Caoutsearch::Search::ValueOverflow.new(:upper, value, range.last)  if range && value > range.last
+            raise Caoutsearch::Search::ValueOverflow.new(:upper, value, range.last) if range && value > range.last
           end
 
           value
@@ -63,10 +63,10 @@ module Caoutsearch
       end
 
       INTEGER_TYPE_LIMITS = {
-        "long"    => bytes_size_to_integer_range(64),
+        "long" => bytes_size_to_integer_range(64),
         "integer" => bytes_size_to_integer_range(32),
-        "short"   => bytes_size_to_integer_range(16),
-        "byte"    => bytes_size_to_integer_range(8)
+        "short" => bytes_size_to_integer_range(16),
+        "byte" => bytes_size_to_integer_range(8)
       }.freeze
 
       def transform_value(value)

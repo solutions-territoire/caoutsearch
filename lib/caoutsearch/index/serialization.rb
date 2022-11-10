@@ -90,30 +90,30 @@ module Caoutsearch
       def bulkify(method, keys)
         raise ArgumentError, "unknown method #{method}" unless %i[index update delete].include?(method)
 
-        keys                        = keys.map(&:to_s)
-        payload                     = []
+        keys = keys.map(&:to_s)
+        payload = []
         property_keys, partial_keys = analyze_keys(keys)
 
         case method
         when :index
           raise SerializationError, format("cannot serialize the following keys: %{keys}", keys: partial_keys.to_sentence) if partial_keys.any?
 
-          payload << { index: { _id: record.id } }
+          payload << {index: {_id: record.id}}
           payload << as_json(*keys)
 
         when :update
           if property_keys.any?
-            payload << { update: { _id: record.id } }
-            payload << { doc: as_json(*property_keys) }
+            payload << {update: {_id: record.id}}
+            payload << {doc: as_json(*property_keys)}
           end
 
           partial_keys.each do |key|
-            payload << { update: { _id: record.id } }
+            payload << {update: {_id: record.id}}
             payload << as_json(*key)
           end
 
         when :delete
-          payload << { update: { _id: record.id } }
+          payload << {update: {_id: record.id}}
         end
 
         payload
@@ -122,9 +122,9 @@ module Caoutsearch
       private
 
       def analyze_keys(keys)
-        partial_keys  = partial_reindexations.keys & keys
+        partial_keys = partial_reindexations.keys & keys
         property_keys = properties & keys
-        unknown_keys  = keys - property_keys - partial_keys
+        unknown_keys = keys - property_keys - partial_keys
 
         raise ArgumentError, format("unknown keys: %{keys}", keys: unknown_keys.to_sentence) if unknown_keys.any?
 

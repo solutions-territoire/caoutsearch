@@ -5,7 +5,7 @@ module Caoutsearch
     module Query
       module Boolean
         def should_filter_on(terms)
-          terms              = flatten_bool_terms(:should, terms)
+          terms = flatten_bool_terms(:should, terms)
           terms_without_none = terms.without(Caoutsearch::Filter::NONE)
           return if terms.empty?
 
@@ -38,9 +38,9 @@ module Caoutsearch
 
           filters <<
             if terms.size == 1
-              { bool: { must_not: terms[0] } }
+              {bool: {must_not: terms[0]}}
             else
-              { bool: { must_not: terms } }
+              {bool: {must_not: terms}}
             end
         end
 

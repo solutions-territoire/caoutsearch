@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Search::Response do
-  let!(:search)       { search_class.new }
+  let!(:search) { search_class.new }
   let!(:search_class) { stub_search_class("SampleSearch") }
 
   let!(:stubbed_request) do

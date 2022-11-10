@@ -6,7 +6,7 @@ module Caoutsearch
       def filter
         return {} if value.nil?
 
-        { term: { key => value } }
+        {term: {key => value}}
       end
 
       protected

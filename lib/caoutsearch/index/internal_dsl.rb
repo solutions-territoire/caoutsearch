@@ -9,7 +9,7 @@ module Caoutsearch
         # Be careful with these class attributes
         # Always use `+=` or `.dup.merge` to assign a new copy
         #
-        class_attribute :properties,            instance_writer: false, default: []
+        class_attribute :properties, instance_writer: false, default: []
         class_attribute :partial_reindexations, instance_writer: false, default: {}
       end
 
@@ -54,13 +54,13 @@ module Caoutsearch
           raise ArgumentError, "The allow_partial_reindex body needs to be callable." if body && !body.respond_to?(:call)
 
           name = name.to_s
-          self.partial_reindexations = partial_reindexations.dup.merge(name => { properties: properties })
+          self.partial_reindexations = partial_reindexations.dup.merge(name => {properties: properties})
 
           if body
             define_method(name, &body)
           else
             define_method(name) do
-              body = { doc: properties.index_with { |key| send(key) } }
+              body = {doc: properties.index_with { |key| send(key) }}
               body[:doc_as_upsert] = true if upsert
               body
             end

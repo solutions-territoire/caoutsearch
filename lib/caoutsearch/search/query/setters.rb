@@ -54,11 +54,11 @@ module Caoutsearch
         # Suggestions should probably use _source: false
         def add_suggestion(key, value, **options)
           suggestions[key] = {
-            prefix:     value,
+            prefix: value,
             completion: options.reverse_merge(
-              field:           key,
+              field: key,
               skip_duplicates: true,
-              fuzzy:           true
+              fuzzy: true
             )
           }
         end

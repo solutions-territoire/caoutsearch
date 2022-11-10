@@ -8,8 +8,8 @@ module Caoutsearch
 
       def load
         @raw_response = perform_search_query(build.to_h)
-        @response     = Caoutsearch::Response::Response.new(@raw_response)
-        @loaded       = true
+        @response = Caoutsearch::Response::Response.new(@raw_response)
+        @loaded = true
         self
       end
 
@@ -91,12 +91,12 @@ module Caoutsearch
 
       def perform_search_query(query)
         request_payload = {
-          index:  index_name,
-          body:   query
+          index: index_name,
+          body: query
         }
 
         instrument(:search) do |event_payload|
-          event_payload[:request]  = request_payload
+          event_payload[:request] = request_payload
           event_payload[:response] = client.search(request_payload)
         end
       end
@@ -118,7 +118,7 @@ module Caoutsearch
             return super if order_values.present? || @_reordered_records
 
             load
-            indexes  = @hits.each_with_index.to_h { |hit, index| [hit["_id"].to_s, index] }
+            indexes = @hits.each_with_index.to_h { |hit, index| [hit["_id"].to_s, index] }
             @records = @records.sort_by { |record| indexes[record.id.to_s] }.freeze
             @_reordered_records = true
 

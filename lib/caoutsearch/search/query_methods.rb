@@ -19,8 +19,8 @@ module Caoutsearch
       # ------------------------------------------------------------------------
       def search_by(criteria)
         case criteria
-        when Array  then criteria.each { |criterion| search_by(criterion) }
-        when Hash   then criteria.each { |key, value| filter_by(key, value) }
+        when Array then criteria.each { |criterion| search_by(criterion) }
+        when Hash then criteria.each { |key, value| filter_by(key, value) }
         when String then apply_dsl_match_all(criteria)
         end
       end
@@ -53,10 +53,10 @@ module Caoutsearch
       def apply_dsl_filter(item, value)
         return instance_exec(value, &item.block) if item.has_block?
 
-        terms   = []
+        terms = []
         indexes = item.indexes
         options = item.options.dup
-        query   = elasticsearch_query
+        query = elasticsearch_query
 
         if options[:nested_query]
           query = nested_query(options[:nested_query])
@@ -65,8 +65,8 @@ module Caoutsearch
 
         indexes.each do |index|
           options_index = options.dup
-          options_index[:type]              = mappings.find_type(index)          unless options_index.key?(:type)
-          options_index[:nested]            = mappings.nested_path(index)        unless options_index.key?(:nested)
+          options_index[:type] = mappings.find_type(index) unless options_index.key?(:type)
+          options_index[:nested] = mappings.nested_path(index) unless options_index.key?(:nested)
           options_index[:include_in_parent] = mappings.include_in_parent?(index) unless options_index.key?(:include_in_parent) || !options_index[:nested]
 
           terms += query.build_terms(index, value, **options_index)
@@ -95,8 +95,8 @@ module Caoutsearch
       # ------------------------------------------------------------------------
       def order_by(keys)
         case keys
-        when Array          then keys.each { |key| order_by(key) }
-        when Hash           then keys.each { |key, direction| sort_by(key, direction) }
+        when Array then keys.each { |key| order_by(key) }
+        when Hash then keys.each { |key, direction| sort_by(key, direction) }
         when String, Symbol then sort_by(keys)
         end
       end

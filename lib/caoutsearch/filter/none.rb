@@ -2,6 +2,6 @@
 
 module Caoutsearch
   module Filter
-    NONE = { term: { 0 => 1 } }.freeze
+    NONE = {term: {0 => 1}}.freeze
   end
 end

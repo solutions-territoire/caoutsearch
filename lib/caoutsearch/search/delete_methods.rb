@@ -10,7 +10,7 @@ module Caoutsearch
         }
 
         instrument(:delete) do |event_payload|
-          event_payload[:request]  = request_payload
+          event_payload[:request] = request_payload
           event_payload[:response] = client.delete_by_query(request_payload)
         end
       end

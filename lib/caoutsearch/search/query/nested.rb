@@ -13,7 +13,7 @@ module Caoutsearch
             query = Caoutsearch::Search::Query::Base.new
             query[:path] = path.to_s
 
-            filters << { nested: query }
+            filters << {nested: query}
             query
           end
         end

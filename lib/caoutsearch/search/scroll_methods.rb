@@ -12,28 +12,28 @@ module Caoutsearch
           body: build.to_h
         }
 
-        total              = 0
-        progress           = 0
-        requested_at       = nil
+        total = 0
+        progress = 0
+        requested_at = nil
         last_response_time = nil
 
         results = instrument(:scroll_search) do |event_payload|
-          response           = client.search(request_payload)
+          response = client.search(request_payload)
           last_response_time = Time.current
 
-          total     = response["hits"]["total"]["value"]
+          total = response["hits"]["total"]["value"]
           progress += response["hits"]["hits"].size
 
-          event_payload[:request]  = request_payload
+          event_payload[:request] = request_payload
           event_payload[:response] = response
-          event_payload[:total]    = total
+          event_payload[:total] = total
           event_payload[:progress] = progress
 
           response
         end
 
         scroll_id = results["_scroll_id"]
-        hits      = results["hits"]["hits"]
+        hits = results["hits"]["hits"]
 
         yield hits, {progress: progress, total: total, scroll_id: scroll_id}
 
@@ -46,15 +46,15 @@ module Caoutsearch
           requested_at = Time.current
 
           results = instrument(:scroll, scroll: scroll_id) do |event_payload|
-            response           = client.scroll(request_payload)
+            response = client.scroll(request_payload)
             last_response_time = Time.current
 
-            total     = response["hits"]["total"]["value"]
+            total = response["hits"]["total"]["value"]
             progress += response["hits"]["hits"].size
 
-            event_payload[:request]  = request_payload
+            event_payload[:request] = request_payload
             event_payload[:response] = response
-            event_payload[:total]    = total
+            event_payload[:total] = total
             event_payload[:progress] = progress
 
             response

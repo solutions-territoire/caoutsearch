@@ -6,7 +6,7 @@ module Caoutsearch
       extend ActiveSupport::Concern
 
       included do
-        class_attribute :scopes,   instance_accessor: false, default: {}
+        class_attribute :scopes, instance_accessor: false, default: {}
         class_attribute :preloads, instance_accessor: false, default: {}
       end
 
@@ -38,11 +38,11 @@ module Caoutsearch
 
           names.each do |name|
             if scopes.include?(name)
-              scope   = scopes[name]
+              scope = scopes[name]
               records = scope.call(records)
             elsif partial_reindexations.include?(name)
               properties = partial_reindexations.dig(name, :properties)
-              records    = apply_scopes(records, properties) if properties&.any?
+              records = apply_scopes(records, properties) if properties&.any?
             end
           end
 

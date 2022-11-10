@@ -9,9 +9,9 @@ module Caoutsearch
         PROPERTIES_TO_INSPECT = %i[name options block].freeze
 
         def initialize(name, options = {}, &block)
-          @name    = name
+          @name = name
           @options = options
-          @block   = block if block
+          @block = block if block
         end
 
         def has_block?

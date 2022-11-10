@@ -83,14 +83,14 @@ module Caoutsearch
           version_name = last_indice_version if version_name == :__last__
 
           actions = []
-          actions << { add: { index: version_name, alias: index_name } }
+          actions << {add: {index: version_name, alias: index_name}}
 
           aliased_indice_versions.each do |alias_name|
             return false if alias_name == version_name
-            actions << { remove: { index: alias_name, alias: index_name } }
+            actions << {remove: {index: alias_name, alias: index_name}}
           end
 
-          client.indices.update_aliases(body: { actions: actions })
+          client.indices.update_aliases(body: {actions: actions})
           refresh_indice
           version_name
         end

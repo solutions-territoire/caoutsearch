@@ -3,7 +3,7 @@
 module Caoutsearch
   module Search
     module Sanitizer
-      ESCAPED_CHARACTERS        = "\+-&|!(){}[]^~*?:"
+      ESCAPED_CHARACTERS = "\+-&|!(){}[]^~*?:"
       ESCAPED_CHARACTERS_REGEXP = /([+\-&|!(){}\[\]\^~*?:])/
 
       class << self
@@ -14,7 +14,7 @@ module Caoutsearch
           when Hash
             value.each { |k, v| value[k] = sanitize(v) }
           when String
-            regexp   = ESCAPED_CHARACTERS_REGEXP if characters == ESCAPED_CHARACTERS
+            regexp = ESCAPED_CHARACTERS_REGEXP if characters == ESCAPED_CHARACTERS
             regexp ||= Regexp.new("([#{Regexp.escape(characters)}])")
 
             value.gsub(regexp, '\\\\\1')

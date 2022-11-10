@@ -11,7 +11,7 @@ module Caoutsearch
       def scroll_search(event)
         log_request("Search", event, format: log_request_format)
         log_response("Search", event) do |message|
-          payload  = event.payload
+          payload = event.payload
           message += ", progress: #{payload[:progress]} / #{payload[:total]}"
           message
         end
@@ -20,7 +20,7 @@ module Caoutsearch
       def scroll(event)
         log_request("Scroll", event, format: "truncated")
         log_response("Scroll", event) do |message|
-          payload  = event.payload
+          payload = event.payload
           message += ", progress: #{payload[:progress]} / #{payload[:total]}"
           message
         end

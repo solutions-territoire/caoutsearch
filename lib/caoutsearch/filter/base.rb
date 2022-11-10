@@ -6,10 +6,10 @@ module Caoutsearch
       attr_reader :key, :original_value, :type, :options
 
       def initialize(key, original_value, type, options = {})
-        @key            = key
+        @key = key
         @original_value = original_value
-        @type           = type
-        @options        = options
+        @type = type
+        @options = options
       end
 
       def value
@@ -25,7 +25,7 @@ module Caoutsearch
           filter = {
             nested: {
               path: nested_path,
-              query: { bool: { filter: Array.wrap(filter) } }
+              query: {bool: {filter: Array.wrap(filter)}}
             }
           }
         end
@@ -54,7 +54,7 @@ module Caoutsearch
       def original_values
         case original_value
         when String then original_value.split(",")
-        when Array  then original_value
+        when Array then original_value
         else Array.wrap(original_value)
         end
       end
@@ -72,9 +72,9 @@ module Caoutsearch
           grouped_terms.each { |term| terms.delete(term) }
 
           terms << if values.size == 1
-            { term: { key => values[0] } }
+            {term: {key => values[0]}}
           else
-            { terms: { key => values } }
+            {terms: {key => values}}
           end
         end
 
