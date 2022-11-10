@@ -40,7 +40,7 @@ module Caoutsearch
             if terms.size == 1
               { bool: { must_not: terms[0] } }
             else
-              filters << { bool: { must_not: terms } }
+              { bool: { must_not: terms } }
             end
         end
 
