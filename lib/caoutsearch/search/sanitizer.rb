@@ -3,7 +3,7 @@
 module Caoutsearch
   module Search
     module Sanitizer
-      ESCAPED_CHARACTERS = "\+-&|!(){}[]^~*?:"
+      ESCAPED_CHARACTERS = "+-&|!(){}[]^~*?:"
       ESCAPED_CHARACTERS_REGEXP = /([+\-&|!(){}\[\]\^~*?:])/
 
       class << self

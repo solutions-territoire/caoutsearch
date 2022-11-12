@@ -121,7 +121,7 @@ module Caoutsearch
 
           when Hash
             index.map do |key, value|
-              key_direction = (value.to_s == direction.to_s ? :asc : :desc)
+              key_direction = (value.to_s == direction.to_s) ? :asc : :desc
               add_sort(key, key_direction)
             end
 

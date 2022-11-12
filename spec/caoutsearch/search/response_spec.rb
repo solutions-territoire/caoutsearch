@@ -13,47 +13,63 @@ RSpec.describe Caoutsearch::Search::Response do
     ])
   end
 
-  it { expect(search.response).to be_a(Caoutsearch::Response::Response) }
-  it { expect(search.raw_response).to be_a(Elasticsearch::API::Response) }
-  it { expect(search.hits).to be_a(Hashie::Array) }
-  it { expect(search.to_a).to be_an(Array) }
-  it { expect(search.aggregations).to be_an(Caoutsearch::Response::Aggregations) }
-  it { expect(search.suggestions).to be_an(Caoutsearch::Response::Suggestions) }
+  it "returns response after performing request" do
+    response = search.response
 
-  it { expect { search.response }.to change(search, :loaded?).to(true) }
-  it { expect { search.raw_response }.to change(search, :loaded?).to(true) }
-  it { expect { search.hits }.to change(search, :loaded?).to(true) }
-  it { expect { search.to_a }.to change(search, :loaded?).to(true) }
-  it { expect { search.aggregations }.to change(search, :loaded?).to(true) }
-  it { expect { search.suggestions }.to change(search, :loaded?).to(true) }
-
-  it "performs a request when calling `response`" do
-    search.response
-    expect(stubbed_request).to have_been_requested.once
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(response).to be_a(Caoutsearch::Response::Response)
+      expect(search.loaded?).to be(true)
+    end
   end
 
-  it "performs a request when calling `raw_response`" do
-    search.raw_response
-    expect(stubbed_request).to have_been_requested.once
+  it "returns raw_response after performing request" do
+    raw_response = search.raw_response
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(raw_response).to be_a(Elasticsearch::API::Response)
+      expect(search.loaded?).to be(true)
+    end
   end
 
-  it "performs a request when calling `hits`" do
-    search.hits
-    expect(stubbed_request).to have_been_requested.once
+  it "returns hits after performing request" do
+    hits = search.hits
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(hits).to be_a(Hashie::Array)
+      expect(search.loaded?).to be(true)
+    end
   end
 
-  it "performs a request when calling `to_a`" do
-    search.to_a
-    expect(stubbed_request).to have_been_requested.once
+  it "returns an array after performing request" do
+    array = search.to_a
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(array).to be_a(Array)
+      expect(search.loaded?).to be(true)
+    end
   end
 
-  it "performs a request when calling `aggregations`" do
-    search.aggregations
-    expect(stubbed_request).to have_been_requested.once
+  it "returns aggregations after performing request" do
+    aggregations = search.aggregations
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(aggregations).to be_an(Caoutsearch::Response::Aggregations)
+      expect(search.loaded?).to be(true)
+    end
   end
 
   it "performs a request when calling `suggestions`" do
-    search.suggestions
-    expect(stubbed_request).to have_been_requested.once
+    suggestions = search.suggestions
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(suggestions).to be_an(Caoutsearch::Response::Suggestions)
+      expect(search.loaded?).to be(true)
+    end
   end
 end

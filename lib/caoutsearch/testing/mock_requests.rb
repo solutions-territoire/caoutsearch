@@ -51,7 +51,7 @@ module Caoutsearch
           hit["_index"] ||= index_name
           hit["_id"] ||= item.respond_to?(:id) ? item.id.to_s : (index + 1).to_s
           hit["_score"] ||= 1
-          hit["_source"] ||= sources && item.respond_to?(:as_indexed_json) ? item.as_indexed_json : {}
+          hit["_source"] ||= (sources && item.respond_to?(:as_indexed_json)) ? item.as_indexed_json : {}
           hit
         end
 

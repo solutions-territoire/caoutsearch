@@ -8,4 +8,8 @@ require "standard/rake"
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new
 
-task default: %i[spec rubocop standard]
+# FYI: standard must be called before rubocop
+# or it'll report offenses from other plugins waiting in .rubocop_todo.yml
+# https://github.com/testdouble/standard/issues/480
+
+task default: %i[spec standard rubocop]
