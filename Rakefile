@@ -8,8 +8,13 @@ require "standard/rake"
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new
 
-# FYI: standard must be called before rubocop
-# or it'll report offenses from other plugins waiting in .rubocop_todo.yml
-# https://github.com/testdouble/standard/issues/480
+task :default do
+  Rake::Task["spec"].invoke
+  Rake::Task["rubocop"].invoke
 
-task default: %i[spec standard rubocop]
+  # FYI: Standard requires a spawn process.
+  # Otherwise it may be tainted by the rubocop task and
+  # report offenses from other plugins putted in .rubocop_todo.yml
+  # https://github.com/testdouble/standard/issues/480
+  fail unless system "bundle exec rake standard"
+end
