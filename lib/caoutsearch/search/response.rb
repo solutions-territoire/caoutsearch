@@ -64,7 +64,7 @@ module Caoutsearch
       end
 
       def ids
-        hits.pluck("_id")
+        hits.map { |hit| hit["_id"] }
       end
 
       def aggregations
@@ -73,14 +73,6 @@ module Caoutsearch
 
       def suggestions
         @aggregations ||= Caoutsearch::Response::Suggestions.new(response.suggest)
-      end
-
-      def records(use: nil)
-        if use
-          build_records_relation(use)
-        else
-          @records ||= build_records_relation(model)
-        end
       end
 
       def each(&block)
@@ -99,36 +91,6 @@ module Caoutsearch
           event_payload[:request] = request_payload
           event_payload[:response] = client.search(request_payload)
         end
-      end
-
-      private
-
-      def build_records_relation(model)
-        # rubocop:disable Lint/NestedMethodDefinition
-        relation = model.where(model.primary_key => ids).extending do
-          attr_reader :hits
-
-          def hits=(values)
-            @hits = values
-          end
-
-          # Re-order records based on hits order
-          #
-          def records
-            return super if order_values.present? || @_reordered_records
-
-            load
-            indexes = @hits.each_with_index.to_h { |hit, index| [hit["_id"].to_s, index] }
-            @records = @records.sort_by { |record| indexes[record.id.to_s] }.freeze
-            @_reordered_records = true
-
-            @records
-          end
-        end
-        # rubocop:enable Lint/NestedMethodDefinition
-
-        relation.hits = hits
-        relation
       end
     end
   end

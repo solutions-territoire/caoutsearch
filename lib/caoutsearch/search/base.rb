@@ -15,6 +15,7 @@ module Caoutsearch
       include Caoutsearch::Search::Naming
       include Caoutsearch::Search::QueryBuilder
       include Caoutsearch::Search::QueryMethods
+      include Caoutsearch::Search::Records
       include Caoutsearch::Search::Resettable
       include Caoutsearch::Search::Response
       include Caoutsearch::Search::ScrollMethods

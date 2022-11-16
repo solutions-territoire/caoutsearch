@@ -47,7 +47,9 @@ module Caoutsearch
 
       def stub_elasticsearch_search_request(index_name, hits, sources: true, total: nil)
         hits = hits.map.each_with_index do |item, index|
-          hit = block_given? ? yield(item) : {}
+          hit = {}
+          hit = item if item.is_a?(Hash)
+          hit = yield(item) if block_given?
           hit["_index"] ||= index_name
           hit["_id"] ||= item.respond_to?(:id) ? item.id.to_s : (index + 1).to_s
           hit["_score"] ||= 1

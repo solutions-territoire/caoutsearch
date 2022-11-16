@@ -43,6 +43,16 @@ RSpec.describe Caoutsearch::Search::Response do
     end
   end
 
+  it "returns ids after performing request" do
+    ids = search.ids
+
+    aggregate_failures do
+      expect(stubbed_request).to have_been_requested.once
+      expect(ids).to eq(%w[135 137])
+      expect(search.loaded?).to be(true)
+    end
+  end
+
   it "returns an array after performing request" do
     array = search.to_a
 
@@ -63,7 +73,7 @@ RSpec.describe Caoutsearch::Search::Response do
     end
   end
 
-  it "performs a request when calling `suggestions`" do
+  it "returns suggestions after performing request" do
     suggestions = search.suggestions
 
     aggregate_failures do
