@@ -4,7 +4,14 @@ require "bundler/setup"
 Bundler.setup
 
 require "simplecov"
-SimpleCov.start
+
+SimpleCov.start do
+  add_group "config", %w[lib/caoutsearch.rb lib/caoutsearch/config]
+  add_group "index", %w[lib/caoutsearch/index]
+  add_group "search", %w[lib/caoutsearch/search lib/caoutsearch/filter lib/caoutsearch/response]
+  add_group "testing", %w[lib/caoutsearch/testing]
+  add_filter "spec"
+end
 
 require "caoutsearch"
 require "caoutsearch/testing"
