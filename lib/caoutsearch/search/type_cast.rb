@@ -15,7 +15,7 @@ module Caoutsearch
           when "geo_point"
             cast_as_geo_point(value)
           when "date"
-            value.to_date.as_json
+            cast_as_date(value)
           else
             value
           end
@@ -69,6 +69,14 @@ module Caoutsearch
           raise ArgumentError, "invalid geo point: #{value.inspect}" unless value.is_a?(Array) && value.length == 2
 
           value.map(&:to_f).reverse
+        end
+
+        def cast_as_date(value)
+          if value.is_a?(String) && value.match?(/\Anow[+-]{0,1}\d*[yMwdhHms]{0,1}(\/d){0,1}\Z/)
+            value
+          elsif Time.parse(value.as_json)
+            value.as_json
+          end
         end
       end
     end
