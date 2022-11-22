@@ -10,22 +10,60 @@ module Caoutsearch
             {exists: {field: key}}
           when false
             {bool: {must_not: {exists: {field: key}}}}
-          when Hash
-            operator, value, unit = value.stringify_keys.values_at("operator", "value", "unit")
+          when ::Range, ::Array
+            lower_bound = value.is_a?(::Range) ? value.begin : value.first
+            upper_bound = value.is_a?(::Range) ? value.end : value.last
 
-            case operator
-            when "less_than"
-              {range: {key => {gte: cast_date(value, unit)}}}
-            when "greater_than"
-              {range: {key => {lt: cast_date(value, unit)}}}
-            when "between"
-              dates = value.map { |v| cast_date(v, unit) }.sort
-              {range: {key => {gte: dates[0], lt: dates[1]}}}
+            next if !upper_bound && !lower_bound
+
+            query = {range: {key => {}}}
+            query[:range][key][:gte] = cast_value(lower_bound) if lower_bound
+            query[:range][key][:lte] = cast_value(upper_bound) if upper_bound
+            query
+          when ::Date, ::String
+            {range: {key => {gte: cast_value(value), lte: cast_value(value)}}}
+          when ::Hash
+            case value
+            in { operator:, value:, **other}
+              ActiveSupport::Deprecation.warn("This form of hash to search for dates will be removed")
+              unit = other[:unit]
+
+              case operator
+              when "less_than"
+                {range: {key => {gte: cast_date(value, unit)}}}
+              when "greater_than"
+                {range: {key => {lt: cast_date(value, unit)}}}
+              when "between"
+                dates = value.map { |v| cast_date(v, unit) }.sort
+                {range: {key => {gte: dates[0], lt: dates[1]}}}
+              else
+                raise ArgumentError, "unknown operator #{operator.inspect} in #{value.inspect}"
+              end
+            in { between: dates }
+              {range: {key => {
+                gte: cast_value(dates.first),
+                lte: cast_value(dates.last)
+              }}}
             else
-              raise ArgumentError, "unknown operator #{operator.inspect} in #{value.inspect}"
+              parameters = value.to_h do |operator, value|
+                [cast_operator(operator), cast_value(value)]
+              end
+              {range: {key => parameters}}
             end
           end
         end
+      end
+
+      def cast_operator(operator)
+        value = {
+          less_than: :lt,
+          less_than_or_equal: :lte,
+          greater_than: :gt,
+          greater_than_or_equal: :gte
+        }[operator]
+
+        raise ArgumentError, "unknown operator #{operator.inspect}" unless value
+        value
       end
 
       def cast_date(value, unit)
@@ -42,7 +80,7 @@ module Caoutsearch
           value = value.ago
         end
 
-        cast_value(value, :date)
+        cast_value(value)
       end
     end
   end

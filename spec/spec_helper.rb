@@ -18,6 +18,7 @@ require "caoutsearch/testing"
 require "webmock/rspec"
 require "amazing_print"
 require "active_record"
+require "timecop"
 
 RSpec.configure do |config|
   config.include Caoutsearch::Testing::MockRequests
