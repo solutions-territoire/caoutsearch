@@ -69,15 +69,15 @@ module Caoutsearch
       def cast_date(value, unit)
         if value.is_a?(Numeric) && unit
           case unit
-          when "day" then value = value.days.ago
-          when "week" then value = value.weeks.ago
-          when "month" then value = value.months.ago
-          when "year", nil then value = value.years.ago
+          when "day" then value = value.days.ago.to_date
+          when "week" then value = value.weeks.ago.to_date
+          when "month" then value = value.months.ago.to_date
+          when "year", nil then value = value.years.ago.to_date
           else
             raise ArgumentError, "unknown unit #{unit.inspect} in #{value.inspect}"
           end
         elsif value.is_a?(ActiveSupport::Duration)
-          value = value.ago
+          value = value.ago.to_date
         end
 
         cast_value(value)
