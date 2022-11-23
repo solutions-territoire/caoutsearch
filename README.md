@@ -35,7 +35,7 @@ If you don't have scenarios as complex as those described in this documentation,
     - Interdependencies
   - [Search Engine](#search-engine)
     - Queries
-    - Filters
+    - [Filters](#filters)
     - Full-text query
     - Custom filters
     - Orders
@@ -79,6 +79,105 @@ TODO
 TODO
 
 ### Search Engine
+
+#### Filters
+Filters declared in the search engine will define how Caoutsearch will build the queries 
+
+The main use of filters is to expose a field for search, but they can also be used to build more complex queries:
+```ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  # Build a filter on the author field
+  filter :author
+
+  # Build a Match filter on multiple fields
+  filter :content,      indexes: %i[title.words content], as: :match
+  
+  # Build a more complex filter by using other filters
+  filter :public,       as: :boolean
+  filter :published_on, as: :date
+  filter :active do |value|
+    search_by(published: value, published_on: value)
+  end
+end
+```
+
+Caoutsearch different types of filters to handle different types of data or ways to search them:
+
+##### Default filter
+
+##### Boolean filter
+
+##### Date filter
+
+For a date filter defined like this:
+```ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  ...
+
+  filter :published_on, as: :date
+end
+```
+
+You can now search the matching index with the `published_on` criterion:
+```ruby
+Article.search(published_on: Date.today)
+```
+
+and the following query will be generated to send to elasticsearch:
+```json
+{
+  "query": { 
+    "bool": { 
+      "filter": [ 
+        { "range": { "published_on": { "gte": "2022-23-11", "lte": "2022-23-11"}}}
+      ]
+    }
+  }
+}
+```
+
+The date filter accepts multiple types of arguments :
+
+```ruby
+# Search for articles published on a date:
+Article.search(published_on: Date.today)
+
+# Search for articles published before a date:
+Article.search(published_on: { less_than: "2022-12-25" })
+Article.search(published_on: { less_than_or_equal: "2022-12-25" })
+Article.search(published_on: ..Date.new(2022, 12, 25))
+Article.search(published_on: [[nil, "now-2w/d"]])
+
+# Search for articles published after a date:
+Article.search(published_on: { greater_than: "2022-12-25" })
+Article.search(published_on: { greater_than_or_equal: "2022-12-25" })
+Article.search(published_on: Date.new(2022, 12, 25)..)
+Article.search(published_on: [["now-1w/d", nil]])
+
+# Search for articles published between two dates:
+Article.search(published_on: { greater_than: "2022-12-25", less_than: "2023-12-25" })
+Article.search(published_on: Date.new(2022, 12, 25)..Date.new(2023, 12, 25))
+Article.search(published_on: [["now-1w/d", "now/d"]])
+```
+
+Dates of various formats are handled:
+```ruby
+"2022-10-11"
+Date.today
+Time.zone.now
+```
+
+We also support elasticsearch's date math
+```ruby
+"now-1h"
+"now+2w/d"
+```
+
+##### GeoPoint filter
+
+##### Match filter
+
+##### Range filter
 
 #### Responses
 
