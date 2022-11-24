@@ -6,6 +6,9 @@ module Caoutsearch
       extend ActiveSupport::Concern
 
       def build
+        reset_variable(:@elasticsearch_query)
+        reset_variable(:@nested_queries)
+
         run_callbacks :build do
           apply_prepend_hash
           apply_search_criteria
