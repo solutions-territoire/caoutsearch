@@ -23,7 +23,7 @@ module Caoutsearch
         reset_variable(:@records)
         reset_variable(:@total_count)
         reset_variable(:@aggregations)
-        reset_variable(:@aggregations)
+        reset_variable(:@suggestions)
         @loaded = false
         self
       end

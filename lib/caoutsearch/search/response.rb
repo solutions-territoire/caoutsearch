@@ -72,7 +72,7 @@ module Caoutsearch
       end
 
       def suggestions
-        @aggregations ||= Caoutsearch::Response::Suggestions.new(response.suggest)
+        @suggestions ||= Caoutsearch::Response::Suggestions.new(response.suggest)
       end
 
       def each(&block)
