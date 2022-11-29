@@ -4,10 +4,11 @@ module Caoutsearch
   module Search
     module Adapter
       module ActiveRecord
-        def self.call(model, hits)
+        def self.call(model, hits, skip_query_cache: false)
           ids = hits.map { |hit| hit["_id"] }
 
           relation = model.where(model.primary_key => ids).extending(Relation)
+          relation.skip_query_cache! if skip_query_cache
           relation.hits = hits
           relation
         end

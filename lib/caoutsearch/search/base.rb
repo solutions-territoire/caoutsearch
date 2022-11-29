@@ -7,6 +7,10 @@ module Caoutsearch
       include Caoutsearch::Config::Mappings
       include Caoutsearch::Config::Settings
 
+      include Caoutsearch::Search::BatchMethods
+      include Caoutsearch::Search::Batch::SearchAfter
+      include Caoutsearch::Search::Batch::Scroll
+
       include Caoutsearch::Search::Callbacks
       include Caoutsearch::Search::DeleteMethods
       include Caoutsearch::Search::Inspect
@@ -18,7 +22,6 @@ module Caoutsearch
       include Caoutsearch::Search::Records
       include Caoutsearch::Search::Resettable
       include Caoutsearch::Search::Response
-      include Caoutsearch::Search::ScrollMethods
       include Caoutsearch::Search::SearchMethods
     end
   end
