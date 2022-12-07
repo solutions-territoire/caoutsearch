@@ -26,6 +26,16 @@ module Caoutsearch
           relation.each(&block)
         end
       end
+
+      def scroll_records_in_batches(**options)
+        ActiveSupport::Deprecation.warn("scroll_records_in_batches is deprecated, use find_records_in_batches instead")
+        find_records_in_batches(implementation: :scroll, **options)
+      end
+
+      def scroll_records(**options)
+        ActiveSupport::Deprecation.warn("scroll_records is deprecated, use find_each_record instead")
+        find_each_record(implementation: :scroll, **options)
+      end
     end
   end
 end
