@@ -57,7 +57,7 @@ If you don't have scenarios as complex as those described in this documentation,
       - [Search API](#search-api)
       - [Pagination](#pagination)
       - [Total count](#total-count)
-      - Scroll records
+      - [Iterating through search results](#iterating-through-search-results)
   - [Testing with Caoutsearch](#testing-with-Caoutsearch)
 
 ## Installation
@@ -448,6 +448,31 @@ search.hits
 search.total_count
 => 276
 ````
+
+##### Iterating through search results
+We provide several ways to loop through your search's resuts. For exemple, if you need to iterate over all your results as ActiveRecord Objects:
+```ruby
+Article.search(published: true).find_each_record do |record|
+  record.inspect
+end
+```
+`find_records_in_batches` allows you to iterate over your records as ActiveRecord::Relation.
+`find_hits_in_batches` allows you to iterate over elasticsearch documents, if you want to avoid unnecessary calls to your database.
+
+By default all these methods use elasticsearch's [search_after](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after) with a PIT but you can use [scroll](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#scroll-search-results) if you prefer:
+```ruby
+Article.search(published: true).find_each_record(implementation: :scroll) { |record| record.inspect }
+```
+You can also change the PIT or scroll retention duration:
+```ruby
+Article.search(published: true).find_each_record(keep_alive: "2h")
+Article.search(published: true).find_each_record(implementation: :scroll, scroll: "2h")
+```
+The maximum number of hits to be returned with each Elasticsearch request can be set with the `per` method:
+```ruby
+Article.search(published: true).per(500).find_records_in_batches.map(&:size)
+#=> [500, 32]
+```
 
 ## Testing with Caoutsearch
 
