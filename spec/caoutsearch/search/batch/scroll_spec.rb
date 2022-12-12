@@ -3,107 +3,73 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Search::Batch::Scroll do
-  before do
-    stub_model_class("Sample")
-  end
-
-  let(:search) { search_class.new }
   let(:search_class) { stub_search_class("SampleSearch") }
-  let(:records) { 12.times.map { Sample.create }.shuffle }
+  let(:search) { search_class.new }
 
-  let!(:requests) do
-    ids = records.map(&:id)
-
-    [
-      stub_elasticsearch_request(
-        :post, "samples/_search?scroll=1h",
-        {
-          "hits" => {
-            "total" => {"value" => 12},
-            "hits" => [
-              {"_id" => ids[0]},
-              {"_id" => ids[1]},
-              {"_id" => ids[2]},
-              {"_id" => ids[3]},
-              {"_id" => ids[4]},
-              {"_id" => ids[5]},
-              {"_id" => ids[6]},
-              {"_id" => ids[7]},
-              {"_id" => ids[8]},
-              {"_id" => ids[9]}
-            ]
-          },
-          "_scroll_id" => "dXdGlONEECFmVrLWk"
-        }
-      ).with(
-        body: {}
-      ),
-      stub_elasticsearch_request(
-        :get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h",
-        {
-          "hits" => {
-            "total" => {"value" => 12},
-            "hits" => [
-              {"_id" => ids[10]},
-              {"_id" => ids[11]}
-            ]
-          }
-        }
-      ),
-      stub_elasticsearch_request(
-        :delete, "_search/scroll/dXdGlONEECFmVrLWk",
-        {succeed: true}
-      )
-    ]
+  let(:hits) do
+    12.times.map do |i|
+      {"_id" => i}
+    end
   end
 
-  it "opens a PIT and calls elasticsearch" do
+  let!(:first_scroll_request) do
+    stub_elasticsearch_request(:post, "samples/_search?scroll=1h").to_return_json(body: {
+      _scroll_id: "dXdGlONEECFmVrLWk",
+      hits: {
+        total: {value: 12},
+        hits: hits[0..9]
+      }
+    })
+  end
+
+  let!(:second_scroll_request) do
+    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h").to_return_json(body: {
+      hits: {
+        total: {value: 12},
+        hits: hits[10..]
+      }
+    })
+  end
+
+  let!(:close_scroll_request) do
+    stub_elasticsearch_request(:delete, "_search/scroll/dXdGlONEECFmVrLWk").to_return_json(body: {
+      succeed: true
+    })
+  end
+
+  it "performs all requests" do
     search.scroll { |batch| batch }
 
-    expect(requests).to all(have_been_requested.once)
-  end
-
-  it "allows to enumerate batches of hits" do
     aggregate_failures do
-      expect(search.scroll).to all(be_a(Array))
-      expect(search.scroll.to_a.flatten).to all(be_a(Hash))
-      expect(search.scroll.map { |hits, _progress| hits }.flatten.map { |doc| doc["_id"] }).to eq(records.map(&:id))
+      expect(first_scroll_request).to have_been_requested.once
+      expect(second_scroll_request).to have_been_requested.once
+      expect(close_scroll_request).to have_been_requested.once
     end
   end
 
-  it "returns the progress" do
-    expect(search.scroll.map { |_hits, progress| progress }).to eq([
-      {progress: 10, total: 12, scroll_id: "dXdGlONEECFmVrLWk"},
-      {progress: 12, total: 12, scroll_id: "dXdGlONEECFmVrLWk"}
-    ])
+  it "yields batches of hits with progress" do
+    expect { |b| search.scroll(&b) }.to yield_successive_args(
+      [hits[0..9], {progress: 10, total: 12, scroll_id: "dXdGlONEECFmVrLWk"}],
+      [hits[10..], {progress: 12, total: 12, scroll_id: "dXdGlONEECFmVrLWk"}]
+    )
   end
 
-  describe "error handling" do
-    before do
-      stub_elasticsearch_request(
-        :get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h",
-        {
-          error: {
-            root_cause: [
-              {type: "search_context_missing_exception", reason: "No search context found for id [462]"}
-            ],
-            type: "search_phase_execution_exception",
-            reason: "all shards failed",
-            phase: "query", grouped: true,
-            failed_shards: [
-              {shard: 0, index: "samples", node: "ek-i5JezTR6L-KwqNNjw", reason: {
-                type: "search_context_missing_exception", reason: "No search context found for id [462]"
-              }}
-            ]
-          }
-        }, 404
-      )
-    end
+  it "raises an enhanced error message when scroll is expired" do
+    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h").to_return_json(
+      status: 404,
+      body: {
+        error: {
+          root_cause: [{type: "search_context_missing_exception", reason: "No search context found for id [462]"}],
+          type: "search_phase_execution_exception",
+          reason: "all shards failed",
+          phase: "query",
+          grouped: true
+        }
+      }
+    )
 
-    it "raises an enhanced error message when pit is expired" do
-      expect { search.scroll.map { |batch| batch } }
-        .to raise_error(Elastic::Transport::Transport::Errors::NotFound)
-        .with_message(/Scroll registered for 1h, .* seconds elapsed between. \[404\] {"error"/)
-    end
+    expect { search.scroll.map { |batch| batch } }
+      .to raise_error(Elastic::Transport::Transport::Errors::NotFound)
+      .with_message(/Scroll registered for 1h, .* seconds elapsed between. \[404\] {"error"/)
   end
 end
