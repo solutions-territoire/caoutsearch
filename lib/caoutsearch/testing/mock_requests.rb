@@ -6,7 +6,7 @@ require "uri"
 module Caoutsearch
   module Testing
     module MockRequests
-      def stub_elasticsearch_request(verb, pattern, results = nil, status = 200)
+      def stub_elasticsearch_request(verb, pattern)
         transport = Caoutsearch.client.transport
         host = transport.__full_url(transport.hosts[0])
 
@@ -32,17 +32,7 @@ module Caoutsearch
           raise TypeError, "wrong type received for URL pattern"
         end
 
-        # The + sign before the body string make a mutable string.
-        # ElasticsearchTransport requires it:
-        # See https://github.com/elastic/elasticsearch-ruby/issues/726
-        #
-        results_body = +(results ? JSON.dump(results) : "")
-
-        stub_request(verb, pattern).to_return(
-          headers: {"Content-Type" => "application/json"},
-          status: status,
-          body: results_body
-        )
+        stub_request(verb, pattern)
       end
 
       def stub_elasticsearch_search_request(index_name, hits, sources: true, total: nil)
@@ -60,7 +50,7 @@ module Caoutsearch
         total ||= hits.size
         total = {"value" => total} if total.is_a?(Numeric)
 
-        stub_elasticsearch_request(:post, "#{index_name}/_search", {
+        stub_elasticsearch_request(:post, "#{index_name}/_search").to_return_json(body: {
           "took" => 10,
           "hits" => {
             "total" => total,
@@ -71,13 +61,13 @@ module Caoutsearch
       end
 
       def stub_elasticsearch_reindex_request(index_name)
-        stub_elasticsearch_request(:post, "#{index_name}/_bulk", {
+        stub_elasticsearch_request(:post, "#{index_name}/_bulk").to_return_json(body: {
           "took" => 100,
           "items" => [],
           "errors" => false
         })
 
-        stub_elasticsearch_request(:post, "#{index_name}/_refresh", {
+        stub_elasticsearch_request(:post, "#{index_name}/_refresh").to_return_json(body: {
           "_shards" => {
             "total" => 1,
             "failed" => 0,

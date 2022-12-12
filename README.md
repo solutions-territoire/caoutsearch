@@ -477,6 +477,11 @@ You can then call the following methods:
 RSpec.describe SomeClass do
   before do
     stub_elasticsearch_request(:head, "articles").to_return(status: 200)
+
+    stub_elasticsearch_request(:get, "_cat/indices?format=json&h=index").to_return_json, [
+      { index: "ca_locals_v14" }
+    ])
+
     stub_elasticsearch_reindex_request("articles")
     stub_elasticsearch_search_request("articles", [
       {"_id" => "135", "_source" => {"name" => "Hello World"}},
