@@ -3,116 +3,146 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Search::BatchMethods do
+  let(:search) { search_class.new }
+  let(:search_class) { stub_search_class("SampleSearch") }
+  let(:records) { 12.times.map { Sample.create } }
+
   before do
     stub_model_class("Sample")
   end
 
-  let(:search) { search_class.new }
-  let(:search_class) { stub_search_class("SampleSearch") }
-  let(:records) { 12.times.map { Sample.create }.shuffle }
-
-  let!(:requests) do
-    ids = records.map(&:id)
-
-    [
-      stub_elasticsearch_request(
-        :post, "samples/_pit?keep_alive=1m",
-        {id: "pitID-dXdGlONEECFmVrLWk"}
-      ),
-      stub_elasticsearch_request(
-        :post, "_search",
-        {
-          "hits" => {
-            "total" => {"value" => 12},
-            "hits" => [
-              {"_id" => ids[0], :sort => [ids[0]]},
-              {"_id" => ids[1], :sort => [ids[1]]},
-              {"_id" => ids[2], :sort => [ids[2]]},
-              {"_id" => ids[3], :sort => [ids[3]]},
-              {"_id" => ids[4], :sort => [ids[4]]},
-              {"_id" => ids[5], :sort => [ids[5]]},
-              {"_id" => ids[6], :sort => [ids[6]]},
-              {"_id" => ids[7], :sort => [ids[7]]},
-              {"_id" => ids[8], :sort => [ids[8]]},
-              {"_id" => ids[9], :sort => [ids[9]]}
-            ]
-          }
+  def stub_search_after
+    stub_elasticsearch_batching_requests("samples")
+      .to_return_json(body: {
+        hits: {
+          total: {value: 12},
+          hits: [
+            {_id: records[0].id, sort: [records[0].id]},
+            {_id: records[1].id, sort: [records[1].id]},
+            {_id: records[2].id, sort: [records[2].id]},
+            {_id: records[3].id, sort: [records[3].id]},
+            {_id: records[4].id, sort: [records[4].id]},
+            {_id: records[5].id, sort: [records[5].id]},
+            {_id: records[6].id, sort: [records[6].id]},
+            {_id: records[7].id, sort: [records[7].id]},
+            {_id: records[8].id, sort: [records[8].id]},
+            {_id: records[9].id, sort: [records[9].id]}
+          ]
         }
-      ).with(
-        body: {
-          track_total_hits: true,
-          pit: {
-            id: "pitID-dXdGlONEECFmVrLWk",
-            keep_alive: "1m"
-          }
+      })
+      .to_return_json(body: {
+        hits: {
+          total: {value: 12},
+          hits: [
+            {_id: records[10].id, sort: [records[10].id]},
+            {_id: records[11].id, sort: [records[11].id]}
+          ]
         }
-      ),
-      stub_elasticsearch_request(
-        :post, "_search",
-        {
-          "hits" => {
-            "total" => {"value" => 12},
-            "hits" => [
-              {"_id" => ids[10], :sort => [ids[10]]},
-              {"_id" => ids[11], :sort => [ids[11]]}
-            ]
-          }
-        }
-      ).with(
-        body: {
-          pit: {
-            id: "pitID-dXdGlONEECFmVrLWk",
-            keep_alive: "1m"
-          },
-          search_after: [ids[9]]
-        }
-      ),
-      stub_elasticsearch_request(
-        :delete, "_pit",
-        {succeed: true}
-      )
-    ]
+      })
   end
 
-  it "opens a PIT and calls elasticsearch" do
-    search.find_hits_in_batches { |batch| batch }
+  def stub_total_count_request
+    stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
+  end
 
-    expect(requests).to all(have_been_requested.once)
+  describe "#find_each_hit" do
+    it "returns an enum without firing any request" do
+      expect(search.find_each_hit).to be_a(Enumerator)
+    end
+
+    it "yield each hit" do
+      stub_search_after
+
+      expect { |b| search.find_each_hit(&b) }.to yield_successive_args(
+        {"_id" => records[0].id, "sort" => [records[0].id]},
+        {"_id" => records[1].id, "sort" => [records[1].id]},
+        {"_id" => records[2].id, "sort" => [records[2].id]},
+        {"_id" => records[3].id, "sort" => [records[3].id]},
+        {"_id" => records[4].id, "sort" => [records[4].id]},
+        {"_id" => records[5].id, "sort" => [records[5].id]},
+        {"_id" => records[6].id, "sort" => [records[6].id]},
+        {"_id" => records[7].id, "sort" => [records[7].id]},
+        {"_id" => records[8].id, "sort" => [records[8].id]},
+        {"_id" => records[9].id, "sort" => [records[9].id]},
+        {"_id" => records[10].id, "sort" => [records[10].id]},
+        {"_id" => records[11].id, "sort" => [records[11].id]}
+      )
+    end
+
+    it "returns enum size with a single request" do
+      stub_total_count_request
+      expect(search.find_each_hit.size).to eq(12)
+    end
   end
 
   describe "#find_each_record" do
-    it "allows to enumerate records" do
-      expect(search.find_each_record).to all(be_a(Sample))
+    it "returns an enum without block" do
+      expect(search.find_each_record).to be_a(Enumerator)
     end
 
-    it "returns records in the same order of the hits" do
-      expect(search.find_each_record.map(&:id)).to eq(records.map(&:id))
-    end
-  end
+    it "yield each record" do
+      stub_search_after
 
-  describe "#find_records_in_batches" do
-    it "allows to enumerate batches of records" do
-      aggregate_failures do
-        expect(search.find_records_in_batches).to all(be_a(ActiveRecord::Relation))
-        expect(search.find_records_in_batches.to_a.flatten).to all(be_a(Sample))
-      end
+      expect { |b| search.find_each_record(&b) }.to yield_successive_args(*records)
     end
 
-    it "returns records in the same order of the hits" do
-      expect(search.find_records_in_batches.to_a.flatten.map(&:id)).to eq(records.map(&:id))
+    it "returns enum size with a single request" do
+      stub_total_count_request
+      expect(search.find_each_record.size).to eq(12)
     end
   end
 
   describe "#find_hits_in_batches" do
-    it "allows to enumerate batches of hits" do
-      aggregate_failures do
-        expect(search.find_hits_in_batches).to all(be_a(Array))
-        expect(search.find_hits_in_batches.to_a.flatten).to all(be_a(Hash))
-      end
+    it "returns an enum without block" do
+      expect(search.find_hits_in_batches).to be_a(Enumerator)
     end
 
-    it "returns records in the same order of the hits" do
-      expect(search.find_hits_in_batches.to_a.flatten.map { |doc| doc["_id"] }).to eq(records.map(&:id))
+    it "yield batches of hits" do
+      stub_search_after
+
+      expect { |b| search.find_hits_in_batches(&b) }.to yield_successive_args(
+        [
+          {"_id" => records[0].id, "sort" => [records[0].id]},
+          {"_id" => records[1].id, "sort" => [records[1].id]},
+          {"_id" => records[2].id, "sort" => [records[2].id]},
+          {"_id" => records[3].id, "sort" => [records[3].id]},
+          {"_id" => records[4].id, "sort" => [records[4].id]},
+          {"_id" => records[5].id, "sort" => [records[5].id]},
+          {"_id" => records[6].id, "sort" => [records[6].id]},
+          {"_id" => records[7].id, "sort" => [records[7].id]},
+          {"_id" => records[8].id, "sort" => [records[8].id]},
+          {"_id" => records[9].id, "sort" => [records[9].id]}
+        ], [
+          {"_id" => records[10].id, "sort" => [records[10].id]},
+          {"_id" => records[11].id, "sort" => [records[11].id]}
+        ]
+      )
+    end
+
+    it "returns enum size with a single request" do
+      stub_total_count_request
+      expect(search.find_hits_in_batches.size).to eq(2)
+    end
+  end
+
+  describe "#find_records_in_batches" do
+    it "returns an enum without block" do
+      expect(search.find_records_in_batches).to be_a(Enumerator)
+    end
+
+    it "yield batches of relations of records" do
+      stub_search_after
+
+      expect { |b| search.find_records_in_batches(&b) }
+        .to yield_successive_args(
+          be_an(ActiveRecord::Relation).and(eq(records[0..9])),
+          be_an(ActiveRecord::Relation).and(eq(records[10..]))
+        )
+    end
+
+    it "returns enum size with a single request" do
+      stub_total_count_request
+      expect(search.find_hits_in_batches.size).to eq(2)
     end
   end
 end

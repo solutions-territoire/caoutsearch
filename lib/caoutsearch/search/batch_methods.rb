@@ -3,8 +3,38 @@
 module Caoutsearch
   module Search
     module BatchMethods
+      def find_each_hit(**options, &)
+        unless block_given?
+          return to_enum(:find_each_hit, **options) do
+            total_count
+          end
+        end
+
+        find_hits_in_batches(**options) do |hits|
+          hits.each(&)
+        end
+      end
+
+      def find_each_record(**options, &)
+        unless block_given?
+          return to_enum(:find_each_record, **options) do
+            total_count
+          end
+        end
+
+        find_records_in_batches(**options) do |relation|
+          relation.each(&)
+        end
+      end
+
       def find_hits_in_batches(implementation: :search_after, **options)
-        return to_enum(:find_hits_in_batches, **options) unless block_given?
+        raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}" unless %i[search_after scroll].include?(implementation)
+
+        unless block_given?
+          return to_enum(:find_hits_in_batches, **options) do
+            total_count.div(current_limit) + 1
+          end
+        end
 
         method(implementation).call(**options) do |hits, _progress|
           yield hits
@@ -12,18 +42,14 @@ module Caoutsearch
       end
 
       def find_records_in_batches(**options)
-        return to_enum(:find_records_in_batches, **options) unless block_given?
+        unless block_given?
+          return to_enum(:find_records_in_batches, **options) do
+            total_count.div(current_limit) + 1
+          end
+        end
 
         find_hits_in_batches(**options) do |hits|
           yield records_adapter.call(model, hits, skip_query_cache: true)
-        end
-      end
-
-      def find_each_record(**options, &block)
-        return to_enum(:find_each_record, **options) unless block
-
-        find_records_in_batches(**options) do |relation|
-          relation.each(&block)
         end
       end
 
