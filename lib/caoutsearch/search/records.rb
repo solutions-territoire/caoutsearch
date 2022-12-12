@@ -3,9 +3,9 @@
 module Caoutsearch
   module Search
     module Records
-      def records(use: nil)
+      def records(use: nil, skip_query_cache: false)
         if use
-          records_adapter.call(use, hits)
+          records_adapter.call(use, hits, skip_query_cache: skip_query_cache)
         else
           @records ||= records_adapter.call(model, hits)
         end

@@ -57,7 +57,7 @@ If you don't have scenarios as complex as those described in this documentation,
       - [Search API](#search-api)
       - [Pagination](#pagination)
       - [Total count](#total-count)
-      - Scroll records
+      - [Iterating results](#iterating-results)
   - [Testing with Caoutsearch](#testing-with-Caoutsearch)
 
 ## Installation
@@ -448,6 +448,36 @@ search.hits
 search.total_count
 => 276
 ````
+
+##### Iterating results
+
+Several methods are provided to loop through a collection or hits or records.  
+These methods are processing batches in the most efficient way: [PIT search_after](https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#search-after).
+
+* `find_each_hit` to yield each hit returned by Elasticsearch.
+* `find_each_record` to yield each record from your database.
+* `find_hits_in_batches` to yield each batch of hits as returned by Elasticsearch.
+* `find_records_in_batches` to yield each batch of records from the database.
+
+Example:
+
+```ruby
+Article.search(published: true).find_each_record do |record|
+  record.inspect
+end
+```
+
+The `keep_alive` parameter tells Elasticsearch how long it should keep the point in time alive. Defaults to 1 minute.
+
+```ruby
+Article.search(published: true).find_each_record(keep_alive: "2h")
+```
+
+To specifies the size of the batch, use `per` chainable method.
+
+```ruby
+Article.search(published: true).per(500).find_records_in_batches
+```
 
 ## Testing with Caoutsearch
 
