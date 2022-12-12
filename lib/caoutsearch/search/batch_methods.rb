@@ -3,32 +3,26 @@
 module Caoutsearch
   module Search
     module BatchMethods
-      def find_each_hit(**options, &)
-        unless block_given?
-          return to_enum(:find_each_hit, **options) do
-            total_count
-          end
-        end
+      def find_each_hit(**options, &block)
+        return to_enum(:find_each_hit, **options) { total_count } unless block
 
         find_hits_in_batches(**options) do |hits|
-          hits.each(&)
+          hits.each(&block)
         end
       end
 
-      def find_each_record(**options, &)
-        unless block_given?
-          return to_enum(:find_each_record, **options) do
-            total_count
-          end
-        end
+      def find_each_record(**options, &block)
+        return to_enum(:find_each_record, **options) { total_count } unless block
 
         find_records_in_batches(**options) do |relation|
-          relation.each(&)
+          relation.each(&block)
         end
       end
 
       def find_hits_in_batches(implementation: :search_after, **options)
-        raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}" unless %i[search_after scroll].include?(implementation)
+        unless %i[search_after scroll].include?(implementation)
+          raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}"
+        end
 
         unless block_given?
           return to_enum(:find_hits_in_batches, **options) do
