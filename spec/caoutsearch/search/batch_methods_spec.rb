@@ -28,28 +28,25 @@ RSpec.describe Caoutsearch::Search::BatchMethods do
     stub_model_class("Sample")
   end
 
-  def stub_search_after
-    stub_elasticsearch_batching_requests("samples")
-      .to_return_json(body: {hits: {total: {value: 12}, hits: hits[0..9]}})
-      .to_return_json(body: {hits: {total: {value: 12}, hits: hits[10..]}})
-  end
-
-  def stub_total_count_request
-    stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
-  end
-
   describe "#find_each_hit" do
     it "returns an enum without firing any request" do
       expect(search.find_each_hit).to be_a(Enumerator)
     end
 
-    it "yield each hit" do
-      stub_search_after
-      expect { |b| search.find_each_hit(&b) }.to yield_successive_args(*hits)
+    it "yields each hit" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      expect { |b| search.find_each_hit(&b) }
+        .to yield_successive_args(*hits)
+    end
+
+    it "yields each hit from the enum" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      expect { |b| search.find_each_hit.each(&b) }
+        .to yield_successive_args(*hits)
     end
 
     it "returns enum size with a single request" do
-      stub_total_count_request
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
       expect(search.find_each_hit.size).to eq(12)
     end
   end
@@ -59,13 +56,20 @@ RSpec.describe Caoutsearch::Search::BatchMethods do
       expect(search.find_each_record).to be_a(Enumerator)
     end
 
-    it "yield each record" do
-      stub_search_after
-      expect { |b| search.find_each_record(&b) }.to yield_successive_args(*records)
+    it "yields each record" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      expect { |b| search.find_each_record(&b) }
+        .to yield_successive_args(*records)
+    end
+
+    it "yields each record from the enum" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      expect { |b| search.find_each_record.each(&b) }
+        .to yield_successive_args(*records)
     end
 
     it "returns enum size with a single request" do
-      stub_total_count_request
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
       expect(search.find_each_record.size).to eq(12)
     end
   end
@@ -75,14 +79,53 @@ RSpec.describe Caoutsearch::Search::BatchMethods do
       expect(search.find_hits_in_batches).to be_a(Enumerator)
     end
 
-    it "yield batches of hits" do
-      stub_search_after
-      expect { |b| search.find_hits_in_batches(&b) }.to yield_successive_args(hits[0..9], hits[10..])
+    it "yields all hits" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      expect { |b| search.find_hits_in_batches(&b) }
+        .to yield_successive_args(hits)
+    end
+
+    it "yield batches of hits given a batch_size" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.find_hits_in_batches(batch_size: 5, &b) }
+        .to yield_successive_args(
+          hits[0..4],
+          hits[5..9],
+          hits[10..]
+        )
+    end
+
+    it "yield batches of hits inheriting batch size from limit" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.per(5).find_hits_in_batches(&b) }
+        .to yield_successive_args(
+          hits[0..4],
+          hits[5..9],
+          hits[10..]
+        )
+    end
+
+    it "yield batches of hits from the enum" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.find_hits_in_batches(batch_size: 5).each(&b) }
+        .to yield_successive_args(
+          hits[0..4],
+          hits[5..9],
+          hits[10..]
+        )
     end
 
     it "returns enum size with a single request" do
-      stub_total_count_request
-      expect(search.find_hits_in_batches.size).to eq(2)
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
+      expect(search.find_hits_in_batches.size).to eq(1)
+    end
+
+    it "returns enum size with a single request given a batch_size" do
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
+      expect(search.find_hits_in_batches(batch_size: 5).size).to eq(3)
     end
   end
 
@@ -91,17 +134,56 @@ RSpec.describe Caoutsearch::Search::BatchMethods do
       expect(search.find_records_in_batches).to be_a(Enumerator)
     end
 
-    it "yield batches of relations of records" do
-      stub_search_after
-      expect { |b| search.find_records_in_batches(&b) }.to yield_successive_args(
-        be_an(ActiveRecord::Relation).and(eq(records[0..9])),
-        be_an(ActiveRecord::Relation).and(eq(records[10..]))
-      )
+    it "yield a relation with all records" do
+      stub_elasticsearch_batching_requests("samples", hits)
+
+      expect { |b| search.find_records_in_batches(&b) }
+        .to yield_successive_args(
+          be_an(ActiveRecord::Relation).and(eq(records))
+        )
+    end
+
+    it "yield batches of relations of records given a batch_size" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.find_records_in_batches(batch_size: 5, &b) }
+        .to yield_successive_args(
+          be_an(ActiveRecord::Relation).and(eq(records[0..4])),
+          be_an(ActiveRecord::Relation).and(eq(records[5..9])),
+          be_an(ActiveRecord::Relation).and(eq(records[10..]))
+        )
+    end
+
+    it "yield batches of records inheriting batch size from limit" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.per(5).find_records_in_batches(&b) }
+        .to yield_successive_args(
+          be_an(ActiveRecord::Relation).and(eq(records[0..4])),
+          be_an(ActiveRecord::Relation).and(eq(records[5..9])),
+          be_an(ActiveRecord::Relation).and(eq(records[10..]))
+        )
+    end
+
+    it "yield batches of records from the enum" do
+      stub_elasticsearch_batching_requests("samples", hits, batch_size: 5)
+
+      expect { |b| search.find_records_in_batches(batch_size: 5).each(&b) }
+        .to yield_successive_args(
+          be_an(ActiveRecord::Relation).and(eq(records[0..4])),
+          be_an(ActiveRecord::Relation).and(eq(records[5..9])),
+          be_an(ActiveRecord::Relation).and(eq(records[10..]))
+        )
     end
 
     it "returns enum size with a single request" do
-      stub_total_count_request
-      expect(search.find_hits_in_batches.size).to eq(2)
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
+      expect(search.find_records_in_batches.size).to eq(1)
+    end
+
+    it "returns enum size with a single request given a batch_size" do
+      stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
+      expect(search.find_records_in_batches(batch_size: 5).size).to eq(3)
     end
   end
 end

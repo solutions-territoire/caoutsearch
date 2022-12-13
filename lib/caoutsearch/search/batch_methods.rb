@@ -19,31 +19,33 @@ module Caoutsearch
         end
       end
 
-      def find_hits_in_batches(implementation: :search_after, **options)
-        unless %i[search_after scroll].include?(implementation)
-          raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}"
-        end
-
-        unless block_given?
-          return to_enum(:find_hits_in_batches, **options) do
-            total_count.div(current_limit) + 1
-          end
-        end
-
-        method(implementation).call(**options) do |hits, _progress|
-          yield hits
-        end
-      end
-
       def find_records_in_batches(**options)
         unless block_given?
           return to_enum(:find_records_in_batches, **options) do
-            total_count.div(current_limit) + 1
+            find_hits_in_batches(**options).size
           end
         end
 
         find_hits_in_batches(**options) do |hits|
           yield records_adapter.call(model, hits, skip_query_cache: true)
+        end
+      end
+
+      def find_hits_in_batches(implementation: :search_after, **options)
+        batch_size = options[:batch_size]&.to_i || @current_limit&.to_i || 1000
+
+        unless block_given?
+          return to_enum(:find_hits_in_batches, **options) do
+            total_count.div(batch_size) + 1
+          end
+        end
+
+        unless %i[search_after scroll].include?(implementation)
+          raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}"
+        end
+
+        method(implementation).call(batch_size: batch_size, **options) do |hits|
+          yield hits
         end
       end
 

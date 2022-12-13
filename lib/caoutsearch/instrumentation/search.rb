@@ -8,18 +8,18 @@ module Caoutsearch
         log_response("Search", event)
       end
 
-      def scroll_search(event)
-        log_request("Search", event, format: log_request_format)
-        log_response("Search", event) do |message|
+      def search_after(event)
+        log_request("SearchAfter", event, format: "truncated")
+        log_response("SearchAfter", event) do |message|
           payload = event.payload
           message += ", progress: #{payload[:progress]} / #{payload[:total]}"
           message
         end
       end
 
-      def search_after(event)
-        log_request("SearchAfter", event, format: "truncated")
-        log_response("SearchAfter", event) do |message|
+      def scroll_search(event)
+        log_request("Search", event, format: log_request_format)
+        log_response("Search", event) do |message|
           payload = event.payload
           message += ", progress: #{payload[:progress]} / #{payload[:total]}"
           message

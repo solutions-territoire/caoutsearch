@@ -4,19 +4,12 @@ module Caoutsearch
   module Search
     module Batch
       module SearchAfter
-        def search_after(keep_alive: "1m", &block)
-          return to_enum(:search_after, keep_alive: keep_alive) unless block
-
-          data = client.open_point_in_time(index: index_name, keep_alive: keep_alive)
-          pit_id = data.body["id"]
-          sort_values = []
-          progress = 0
-          total = nil
-          requested_at = nil
-          last_response_time = Time.current
+        def search_after(keep_alive: "1m", batch_size: 1000, &block)
+          pit_id = client.open_point_in_time(index: index_name, keep_alive: keep_alive)["id"]
+          search = per(batch_size).track_total_hits
 
           request_payload = {
-            body: track_total_hits.build.to_h.merge(
+            body: search.build.to_h.merge(
               pit: {
                 id: pit_id,
                 keep_alive: keep_alive
@@ -24,9 +17,12 @@ module Caoutsearch
             )
           }
 
-          loop do
-            request_payload[:body][:search_after] = sort_values if sort_values.any?
+          total = nil
+          progress = 0
+          requested_at = nil
+          last_response_time = Time.current
 
+          loop do
             requested_at = Time.current
 
             results = instrument(:search_after, pit: pit_id) do |event_payload|
@@ -46,24 +42,24 @@ module Caoutsearch
               raise_enhance_message_when_pit_failed(e, keep_alive, requested_at, last_response_time)
             end
 
-            request_payload[:body].reject! { |k| k == :track_total_hits } if request_payload[:body][:track_total_hits]
             hits = results["hits"]["hits"]
-            yield hits, {progress: progress, total: total, pit_id: pit_id}
-            break if hits.empty? || progress >= total
+            break if hits.empty?
 
-            sort_values = hits.last["sort"]
+            yield hits
+            break if progress >= total
+
+            request_payload[:body][:search_after] = hits.last["sort"]
+            request_payload[:body].delete(:track_total_hits)
           end
         ensure
-          clear_pit(pit_id)
+          close_point_in_time(pit_id)
         end
 
-        def clear_pit(pit_id)
+        def close_point_in_time(pit_id)
           client.close_point_in_time(body: {id: pit_id}) if pit_id
         rescue ::Elastic::Transport::Transport::Errors::NotFound
           # We dont care if the PIT ID is already expired
         end
-
-        private
 
         def raise_enhance_message_when_pit_failed(error, keep_alive, requested_at, last_response_time)
           elapsed = (requested_at - last_response_time).round(1).seconds

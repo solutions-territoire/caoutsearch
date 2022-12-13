@@ -13,7 +13,7 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
   end
 
   let!(:first_scroll_request) do
-    stub_elasticsearch_request(:post, "samples/_search?scroll=1h").to_return_json(body: {
+    stub_elasticsearch_request(:post, "samples/_search?scroll=1m").to_return_json(body: {
       _scroll_id: "dXdGlONEECFmVrLWk",
       hits: {
         total: {value: 12},
@@ -23,7 +23,7 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
   end
 
   let!(:second_scroll_request) do
-    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h").to_return_json(body: {
+    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1m").to_return_json(body: {
       hits: {
         total: {value: 12},
         hits: hits[10..]
@@ -38,7 +38,7 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
   end
 
   it "performs all requests" do
-    search.scroll { |batch| batch }
+    search.scroll(batch_size: 10) { |_batch| }
 
     aggregate_failures do
       expect(first_scroll_request).to have_been_requested.once
@@ -48,14 +48,14 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
   end
 
   it "yields batches of hits with progress" do
-    expect { |b| search.scroll(&b) }.to yield_successive_args(
-      [hits[0..9], {progress: 10, total: 12, scroll_id: "dXdGlONEECFmVrLWk"}],
-      [hits[10..], {progress: 12, total: 12, scroll_id: "dXdGlONEECFmVrLWk"}]
+    expect { |b| search.scroll(batch_size: 10, &b) }.to yield_successive_args(
+      hits[0..9],
+      hits[10..]
     )
   end
 
   it "raises an enhanced error message when scroll is expired" do
-    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1h").to_return_json(
+    stub_elasticsearch_request(:get, "/_search/scroll/dXdGlONEECFmVrLWk?scroll=1m").to_return_json(
       status: 404,
       body: {
         error: {
@@ -68,8 +68,8 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
       }
     )
 
-    expect { search.scroll.map { |batch| batch } }
+    expect { search.scroll(batch_size: 10) { |_batch| } }
       .to raise_error(Elastic::Transport::Transport::Errors::NotFound)
-      .with_message(/Scroll registered for 1h, .* seconds elapsed between. \[404\] {"error"/)
+      .with_message(/Scroll registered for 1m, .* seconds elapsed between. \[404\] {"error"/)
   end
 end

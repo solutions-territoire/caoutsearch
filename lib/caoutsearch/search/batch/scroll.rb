@@ -4,13 +4,13 @@ module Caoutsearch
   module Search
     module Batch
       module Scroll
-        def scroll(scroll: "1h", &block)
-          return to_enum(:scroll, scroll: scroll) unless block
+        def scroll(scroll: "1m", batch_size: 1000, &block)
+          search = per(batch_size).track_total_hits
 
           request_payload = {
             index: index_name,
             scroll: scroll,
-            body: build.to_h
+            body: search.build.to_h
           }
 
           total = 0
@@ -33,24 +33,25 @@ module Caoutsearch
             response
           end
 
-          scroll_id = results["_scroll_id"]
           hits = results["hits"]["hits"]
+          return if hits.empty?
 
-          yield hits, {progress: progress, total: total, scroll_id: scroll_id}
+          yield hits
+          return if progress >= total
 
-          while progress < total
-            request_payload = {
-              scroll_id: scroll_id,
-              scroll: scroll
-            }
+          scroll_id = results["_scroll_id"]
+          request_payload = {
+            scroll_id: scroll_id,
+            scroll: scroll
+          }
 
+          loop do
             requested_at = Time.current
 
             results = instrument(:scroll, scroll: scroll_id) do |event_payload|
               response = client.scroll(request_payload)
               last_response_time = Time.current
 
-              total = response["hits"]["total"]["value"]
               progress += response["hits"]["hits"].size
 
               event_payload[:request] = request_payload
@@ -66,7 +67,8 @@ module Caoutsearch
             hits = results["hits"]["hits"]
             break if hits.empty?
 
-            yield hits, {progress: progress, total: total, scroll_id: scroll_id}
+            yield hits
+            break if progress >= total
           end
 
           total
@@ -79,8 +81,6 @@ module Caoutsearch
         rescue ::Elastic::Transport::Transport::Errors::NotFound
           # We dont care if the scroll ID is already expired
         end
-
-        private
 
         def raise_enhance_message_when_scroll_failed(error, scroll, requested_at, last_response_time)
           elapsed = (requested_at - last_response_time).round(1).seconds

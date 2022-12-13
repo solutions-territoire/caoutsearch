@@ -8,9 +8,8 @@ module Caoutsearch
       include Caoutsearch::Config::Settings
 
       include Caoutsearch::Search::BatchMethods
-      include Caoutsearch::Search::Batch::SearchAfter
       include Caoutsearch::Search::Batch::Scroll
-
+      include Caoutsearch::Search::Batch::SearchAfter
       include Caoutsearch::Search::Callbacks
       include Caoutsearch::Search::DeleteMethods
       include Caoutsearch::Search::Inspect

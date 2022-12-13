@@ -76,7 +76,7 @@ module Caoutsearch
         })
       end
 
-      def stub_elasticsearch_batching_requests(index_name)
+      def stub_elasticsearch_batching_requests(index_name, hits = [], batch_size: 1000)
         pid_id = SecureRandom.base64
 
         stub_elasticsearch_request(:post, "samples/_pit?keep_alive=1m")
@@ -86,8 +86,30 @@ module Caoutsearch
           .with(body: {id: pid_id})
           .to_return_json(body: {succeed: true})
 
-        stub_elasticsearch_request(:post, "_search")
+        search_request = stub_elasticsearch_request(:post, "_search")
           .with { |request| request.body.include?(pid_id) }
+
+        if hits.any?
+          hits.each_slice(batch_size).each_with_index do |slice, index|
+            if index.zero?
+              search_request.to_return_json(body: {
+                hits: {
+                  total: {value: hits.size},
+                  hits: slice
+                }
+              })
+            else
+              search_request.to_return_json(body: {
+                hits: {
+                  total: {value: slice.size, relation: "gte"},
+                  hits: slice
+                }
+              })
+            end
+          end
+        end
+
+        search_request
       end
     end
   end

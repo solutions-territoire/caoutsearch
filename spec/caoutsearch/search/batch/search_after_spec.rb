@@ -23,10 +23,8 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
     stub_elasticsearch_request(:post, "_search")
       .with(body: {
         track_total_hits: true,
-        pit: {
-          id: "pitID-dXdGlONEECFmVrLWk",
-          keep_alive: "1m"
-        }
+        size: 10,
+        pit: {id: "pitID-dXdGlONEECFmVrLWk", keep_alive: "1m"}
       })
       .to_return_json(body: {
         hits: {
@@ -39,10 +37,8 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
   let!(:second_batch_request) do
     stub_elasticsearch_request(:post, "_search")
       .with(body: {
-        pit: {
-          id: "pitID-dXdGlONEECFmVrLWk",
-          keep_alive: "1m"
-        },
+        size: 10,
+        pit: {id: "pitID-dXdGlONEECFmVrLWk", keep_alive: "1m"},
         search_after: [9]
       })
       .to_return_json(body: {
@@ -61,7 +57,7 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
   end
 
   it "performs all expected requests" do
-    search.search_after { |_batch| }
+    search.search_after(batch_size: 10) { |_batch| }
 
     aggregate_failures do
       expect(open_pit_request).to have_been_requested.once
@@ -72,33 +68,25 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
   end
 
   it "yields batches of hits with progress" do
-    expect { |b| search.search_after(&b) }.to yield_successive_args(
-      [hits[0..9], {progress: 10, total: 12, pit_id: "pitID-dXdGlONEECFmVrLWk"}],
-      [hits[10..], {progress: 12, total: 12, pit_id: "pitID-dXdGlONEECFmVrLWk"}]
+    expect { |b| search.search_after(batch_size: 10, &b) }.to yield_successive_args(
+      hits[0..9],
+      hits[10..]
     )
   end
 
   it "raises an enhanced error message when scroll is expired" do
-    stub_elasticsearch_request(:post, "_search")
-      .with(body: {
-        track_total_hits: true,
-        pit: {
-          id: "pitID-dXdGlONEECFmVrLWk",
-          keep_alive: "1m"
+    stub_elasticsearch_request(:post, "_search").to_return_json(
+      status: 404,
+      body: {
+        error: {
+          root_cause: [{type: "search_context_missing_exception", reason: "No search context found for id [462]"}],
+          type: "search_phase_execution_exception",
+          reason: "all shards failed",
+          phase: "query",
+          grouped: true
         }
-      })
-      .to_return_json(
-        status: 404,
-        body: {
-          error: {
-            root_cause: [{type: "search_context_missing_exception", reason: "No search context found for id [462]"}],
-            type: "search_phase_execution_exception",
-            reason: "all shards failed",
-            phase: "query",
-            grouped: true
-          }
-        }
-      )
+      }
+    )
 
     expect { search.search_after { |_batch| } }
       .to raise_error(Elastic::Transport::Transport::Errors::NotFound)

@@ -473,9 +473,10 @@ The `keep_alive` parameter tells Elasticsearch how long it should keep the point
 Article.search(published: true).find_each_record(keep_alive: "2h")
 ```
 
-To specifies the size of the batch, use `per` chainable method.
+To specifies the size of the batch, use `per` chainable method or `batch_size` parameter. Defaults to 1000.
 
 ```ruby
+Article.search(published: true).find_records_in_batches(batch_size: 500)
 Article.search(published: true).per(500).find_records_in_batches
 ```
 
