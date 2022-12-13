@@ -76,10 +76,10 @@ module Caoutsearch
         })
       end
 
-      def stub_elasticsearch_batching_requests(index_name, hits = [], batch_size: 1000)
+      def stub_elasticsearch_batching_requests(index_name, hits = [], keep_alive: "1m", batch_size: 1000)
         pid_id = SecureRandom.base64
 
-        stub_elasticsearch_request(:post, "samples/_pit?keep_alive=1m")
+        stub_elasticsearch_request(:post, "#{index_name}/_pit?keep_alive=#{keep_alive}")
           .to_return_json(body: {id: pid_id})
 
         stub_elasticsearch_request(:delete, "_pit")
