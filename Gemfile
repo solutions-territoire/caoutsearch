@@ -5,6 +5,7 @@ gemspec
 
 gem "activerecord"
 gem "amazing_print"
+gem "database_cleaner-active_record"
 gem "gem-release"
 gem "rake"
 gem "rspec"

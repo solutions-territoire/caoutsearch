@@ -20,10 +20,6 @@ RSpec.describe Caoutsearch::Search::Records do
     (135..138).map { |id| Sample.create(id: id) }
   end
 
-  after do
-    Sample.delete_all
-  end
-
   it "returns a relation or records after perform request" do
     records = search.records
 

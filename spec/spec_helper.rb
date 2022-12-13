@@ -13,6 +13,7 @@ SimpleCov.start do
   add_filter "spec"
 end
 
+require "database_cleaner/active_record"
 require "caoutsearch"
 require "caoutsearch/testing"
 require "webmock/rspec"
@@ -36,6 +37,13 @@ RSpec.configure do |config|
         end
       end
     end
+
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.around do |example|
+    DatabaseCleaner.cleaning { example.run }
   end
 
   config.after(:suite) do
