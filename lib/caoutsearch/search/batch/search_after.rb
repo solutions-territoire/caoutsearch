@@ -48,8 +48,11 @@ module Caoutsearch
             yield hits
             break if progress >= total
 
-            request_payload[:body][:search_after] = hits.last["sort"]
-            request_payload[:body].delete(:track_total_hits)
+            request_payload[:body].tap do |body|
+              body[:pit][:id] = results["pit_id"]
+              body[:search_after] = hits.last["sort"]
+              body.delete(:track_total_hits)
+            end
           end
         ensure
           close_point_in_time(pit_id)
