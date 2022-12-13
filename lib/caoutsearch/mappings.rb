@@ -18,7 +18,7 @@ module Caoutsearch
     alias_method :as_json, :to_hash
 
     def to_json(*)
-      as_json.to_json
+      MultiJson.dump(as_json)
     end
 
     def include?(*args)

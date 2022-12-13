@@ -13,12 +13,10 @@ SimpleCov.start do
   add_filter "spec"
 end
 
-require "database_cleaner/active_record"
 require "caoutsearch"
 require "caoutsearch/testing"
 require "webmock/rspec"
 require "amazing_print"
-require "active_record"
 require "timecop"
 
 RSpec.configure do |config|
@@ -28,7 +26,10 @@ RSpec.configure do |config|
     expect.syntax = :expect
   end
 
-  config.before(:suite) do
+  config.before :context, active_record: true do
+    require "database_cleaner/active_record"
+    require "active_record"
+
     ActiveRecord::Base.establish_connection(adapter: "sqlite3", database: ":memory:")
     ActiveRecord::Schema.define do
       suppress_messages do
@@ -42,11 +43,11 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
-  config.around do |example|
+  config.around active_record: true do |example|
     DatabaseCleaner.cleaning { example.run }
   end
 
-  config.after(:suite) do
+  config.after :context, active_record: true do
     ActiveRecord::Schema.define do
       suppress_messages do
         drop_table :samples

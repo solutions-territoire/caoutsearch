@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "active_support/core_ext/module"
-require "active_support/core_ext/class"
+require "active_support"
+require "active_support/core_ext"
 require "elasticsearch"
 require "hashie"
 require "zeitwerk"

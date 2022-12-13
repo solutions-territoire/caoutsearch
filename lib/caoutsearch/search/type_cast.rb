@@ -72,11 +72,11 @@ module Caoutsearch
         end
 
         def cast_as_date(value)
-          if value.is_a?(String) && value.match?(/\Anow[+-]{0,1}\d*[yMwdhHms]{0,1}(\/d){0,1}\Z/)
-            value
-          elsif Time.parse(value.as_json)
-            value.as_json
-          end
+          return value if value.is_a?(String) && value.match?(/\Anow[+-]{0,1}\d*[yMwdhHms]{0,1}(\/d){0,1}\Z/)
+
+          json_value = value.as_json if value.respond_to?(:as_json)
+          json_value ||= MultiJson.dump(value)
+          json_value if Time.parse(json_value)
         end
       end
     end

@@ -5,10 +5,6 @@ module Caoutsearch
     module Serialization
       extend ActiveSupport::Concern
 
-      included do
-        delegate :to_json, to: :as_json
-      end
-
       class_methods do
         # Transform record or array of records to JSON:
         #
@@ -58,6 +54,10 @@ module Caoutsearch
         end
 
         simplify(json)
+      end
+
+      def to_json(*)
+        MultiJson.dump(as_json)
       end
 
       # Recursive objects simplication:

@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Caoutsearch::Search::Records do
+RSpec.describe Caoutsearch::Search::Records, active_record: true do
   let!(:search) { search_class.new }
   let!(:search_class) { stub_search_class("SampleSearch") }
 
