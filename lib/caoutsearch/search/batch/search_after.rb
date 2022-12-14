@@ -5,7 +5,7 @@ module Caoutsearch
     module Batch
       module SearchAfter
         def search_after(keep_alive: "1m", batch_size: 1000, &block)
-          pit_id = client.open_point_in_time(index: index_name, keep_alive: keep_alive)["id"]
+          pit_id = open_point_in_time(keep_alive: keep_alive)
           search = per(batch_size).track_total_hits
 
           request_payload = {
@@ -56,13 +56,7 @@ module Caoutsearch
             end
           end
         ensure
-          close_point_in_time(pit_id)
-        end
-
-        def close_point_in_time(pit_id)
-          client.close_point_in_time(body: {id: pit_id}) if pit_id
-        rescue ::Elastic::Transport::Transport::Errors::NotFound
-          # We dont care if the PIT ID is already expired
+          close_point_in_time(pit_id) if pit_id
         end
 
         def raise_enhance_message_when_pit_failed(error, keep_alive, requested_at, last_response_time)

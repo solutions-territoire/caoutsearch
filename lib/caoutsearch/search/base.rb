@@ -16,6 +16,7 @@ module Caoutsearch
       include Caoutsearch::Search::Instrumentation
       include Caoutsearch::Search::InternalDSL
       include Caoutsearch::Search::Naming
+      include Caoutsearch::Search::PointInTime
       include Caoutsearch::Search::QueryBuilder
       include Caoutsearch::Search::QueryMethods
       include Caoutsearch::Search::Records
