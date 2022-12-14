@@ -43,13 +43,14 @@ module Caoutsearch
             end
 
             hits = results["hits"]["hits"]
+            pit_id = results["pit_id"]
             break if hits.empty?
 
             yield hits
             break if progress >= total
 
             request_payload[:body].tap do |body|
-              body[:pit][:id] = results["pit_id"]
+              body[:pit][:id] = pit_id
               body[:search_after] = hits.last["sort"]
               body.delete(:track_total_hits)
             end

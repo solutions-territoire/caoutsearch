@@ -3,8 +3,8 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Search::BatchMethods, active_record: true do
-  let(:search) { search_class.new }
   let(:search_class) { stub_search_class("SampleSearch") }
+  let(:search) { search_class.new }
   let(:records) { 12.times.map { Sample.create } }
 
   let(:hits) do

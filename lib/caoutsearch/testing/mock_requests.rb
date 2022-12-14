@@ -89,24 +89,13 @@ module Caoutsearch
         search_request = stub_elasticsearch_request(:post, "_search")
           .with { |request| request.body.include?(pid_id) }
 
-        if hits.any?
-          hits.each_slice(batch_size).each_with_index do |slice, index|
-            if index.zero?
-              search_request.to_return_json(body: {
-                hits: {
-                  total: {value: hits.size},
-                  hits: slice
-                }
-              })
-            else
-              search_request.to_return_json(body: {
-                hits: {
-                  total: {value: slice.size, relation: "gte"},
-                  hits: slice
-                }
-              })
-            end
-          end
+        hits.each_slice(batch_size).each_with_index do |slice, index|
+          total = index.zero? ? {value: hits.size} : {value: slice.size, relation: "gte"}
+
+          search_request.to_return_json(body: {
+            hits: {total: total, hits: slice},
+            pit_id: pid_id
+          })
         end
 
         search_request
