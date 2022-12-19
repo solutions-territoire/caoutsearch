@@ -13,12 +13,19 @@ module Caoutsearch
           when ::Range, ::Array
             lower_bound = value.is_a?(::Range) ? value.begin : value.first
             upper_bound = value.is_a?(::Range) ? value.end : value.last
-
-            next if !upper_bound && !lower_bound
+            next unless upper_bound || lower_bound
 
             query = {range: {key => {}}}
             query[:range][key][:gte] = cast_value(lower_bound) if lower_bound
-            query[:range][key][:lte] = cast_value(upper_bound) if upper_bound
+
+            if upper_bound
+              if value.is_a?(::Range) && value.exclude_end?
+                query[:range][key][:lt] = cast_value(upper_bound)
+              else
+                query[:range][key][:lte] = cast_value(upper_bound)
+              end
+            end
+
             query
           when ::Date, ::String
             {range: {key => {gte: cast_value(value), lte: cast_value(value)}}}
@@ -48,22 +55,32 @@ module Caoutsearch
               parameters = value.to_h do |operator, value|
                 [cast_operator(operator), cast_value(value)]
               end
+
               {range: {key => parameters}}
             end
           end
         end
       end
 
-      def cast_operator(operator)
-        value = {
-          less_than: :lt,
-          less_than_or_equal: :lte,
-          greater_than: :gt,
-          greater_than_or_equal: :gte
-        }[operator]
+      RANGE_OPERATORS = {
+        "less_than" => "lt",
+        "less_than_or_equal" => "lte",
+        "greater_than" => "gt",
+        "greater_than_or_equal" => "gte"
+      }.freeze
 
-        raise ArgumentError, "unknown operator #{operator.inspect}" unless value
-        value
+      def cast_operator(original_operator)
+        operator = original_operator.to_s
+        return original_operator if RANGE_OPERATORS.value?(operator)
+
+        operator = RANGE_OPERATORS[operator]
+        if operator.nil?
+          raise ArgumentError, "unknown operator #{original_operator.inspect}"
+        elsif original_operator.is_a?(Symbol)
+          operator.to_sym
+        else
+          operator
+        end
       end
 
       def cast_date(value, unit)

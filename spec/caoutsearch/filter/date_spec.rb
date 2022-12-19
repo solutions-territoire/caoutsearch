@@ -3,177 +3,118 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Filter::Date do
-  context "with boolean input" do
-    it "generates a filter on field with data" do
-      expect(described_class.new(:created_at, true, :date).as_json).to eq([
-        {exists: {field: :created_at}}
-      ])
-    end
+  let(:date1) { Date.new(2022, 10, 1) }
+  let(:date2) { Date.new(2022, 10, 30) }
+  let(:time1) { Time.new(2022, 10, 1, 8, 0, 0, "UTC") }
+  let(:time2) { Time.new(2022, 10, 1, 12, 0, 0, "UTC") }
 
-    it "generates on field without data" do
-      expect(described_class.new(:created_at, false, :date).as_json).to eq([
-        {bool: {must_not: {exists: {field: :created_at}}}}
-      ])
-    end
+  def expect_value(input_value)
+    expect(described_class.call(:created_at, input_value, :date))
+  end
+
+  def generate_terms(*expected_terms)
+    eq(expected_terms)
+  end
+
+  def generate_range(expected_range)
+    eq([{range: {created_at: expected_range}}])
+  end
+
+  it { expect_value(true).to generate_terms({exists: {field: :created_at}}) }
+  it { expect_value(false).to generate_terms({bool: {must_not: {exists: {field: :created_at}}}}) }
+
+  it { expect_value("2022-10-01").to generate_range({gte: "2022-10-01", lte: "2022-10-01"}) }
+  it { expect_value("now-1w/d").to generate_range({gte: "now-1w/d", lte: "now-1w/d"}) }
+  it { expect_value(date1).to generate_range({gte: "2022-10-01", lte: "2022-10-01"}) }
+
+  it { expect_value({lt: "2022-11-21"}).to generate_range({lt: "2022-11-21"}) }
+  it { expect_value({gt: "2022-11-21"}).to generate_range({gt: "2022-11-21"}) }
+  it { expect_value({lte: "2022-11-21"}).to generate_range({lte: "2022-11-21"}) }
+  it { expect_value({gte: "2022-11-21"}).to generate_range({gte: "2022-11-21"}) }
+
+  it { expect_value({less_than: "2022-11-21"}).to generate_range({lt: "2022-11-21"}) }
+  it { expect_value({greater_than: "2022-11-21"}).to generate_range({gt: "2022-11-21"}) }
+  it { expect_value({less_than_or_equal: "2022-11-21"}).to generate_range({lte: "2022-11-21"}) }
+  it { expect_value({greater_than_or_equal: "2022-11-21"}).to generate_range({gte: "2022-11-21"}) }
+
+  it { expect_value({"less_than" => "2022-11-21"}).to generate_range({"lt" => "2022-11-21"}) }
+  it { expect_value({"greater_than" => "2022-11-21"}).to generate_range({"gt" => "2022-11-21"}) }
+  it { expect_value({"less_than_or_equal" => "2022-11-21"}).to generate_range({"lte" => "2022-11-21"}) }
+  it { expect_value({"greater_than_or_equal" => "2022-11-21"}).to generate_range({"gte" => "2022-11-21"}) }
+
+  it do
+    expect_value(
+      {less_than_or_equal: "2022-10-30", greater_than: "2022-10-15"}
+    ).to generate_range(
+      {lte: "2022-10-30", gt: "2022-10-15"}
+    )
+  end
+
+  it do
+    expect_value(
+      {less_than_or_equal: date1, greater_than: date2}
+    ).to generate_range(
+      {lte: "2022-10-01", gt: "2022-10-30"}
+    )
+  end
+
+  it "raises an error with an unexpected operator" do
+    expect {
+      described_class.call(:created_at, {less: "2022-11-21"}, :date)
+    }.to raise_error(ArgumentError)
+  end
+
+  it { expect_value({between: ["2022-10-01", "2022-10-30"]}).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value({between: ["now", "now+1w/d"]}).to generate_range({gte: "now", lte: "now+1w/d"}) }
+  it { expect_value({between: [date1, date2]}).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value({between: [time1, time2]}).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+
+  it { expect_value("2022-10-01".."2022-10-30").to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value("2022-10-01"..."2022-10-30").to generate_range({gte: "2022-10-01", lt: "2022-10-30"}) }
+  it { expect_value("2022-10-01"..).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value(.."2022-10-01").to generate_range({lte: "2022-10-01"}) }
+
+  it { expect_value("now".."now+1w/d").to generate_range({gte: "now", lte: "now+1w/d"}) }
+
+  it { expect_value(time1..time2).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+  it { expect_value(date1..date2).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value(date1...date2).to generate_range({gte: "2022-10-01", lt: "2022-10-30"}) }
+  it { expect_value(date1..).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value(..date2).to generate_range({lte: "2022-10-30"}) }
+
+  it { expect_value([["2022-10-01", "2022-10-30"]]).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value([["2022-10-01", nil]]).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value([[nil, "2022-10-01"]]).to generate_range({lte: "2022-10-01"}) }
+
+  it { expect_value([["now", "now+1w/d"]]).to generate_range({gte: "now", lte: "now+1w/d"}) }
+
+  it { expect_value([[time1, time2]]).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+  it { expect_value([[date1, date2]]).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value([[date1, nil]]).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value([[nil, date2]]).to generate_range({lte: "2022-10-30"}) }
+
+  it do
+    expect_value(
+      [true, ..Date.new(2022, 10, 1)]
+    ).to generate_terms(
+      {exists: {field: :created_at}},
+      {range: {created_at: {lte: "2022-10-01"}}}
+    )
   end
 
   context "with deprecated hash input" do
-    it "generates a filter on field where value is less_than" do
-      expect(described_class.new(:created_at, {operator: "less_than", value: "2022-11-21"}, :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-11-21"}}}
-      ])
+    before do
+      Timecop.freeze(Time.local(2020, 9, 2, 11, 59, 0))
     end
 
-    it "generates a filter on field where value is greater_than" do
-      expect(described_class.new(:created_at, {operator: "greater_than", value: "2022-11-21"}, :date).as_json).to eq([
-        {range: {created_at: {lt: "2022-11-21"}}}
-      ])
-    end
+    it { expect_value({operator: "less_than", value: "2022-11-21"}).to generate_range({gte: "2022-11-21"}) }
+    it { expect_value({operator: "greater_than", value: "2022-11-21"}).to generate_range({lt: "2022-11-21"}) }
+    it { expect_value({operator: "between", value: ["2022-11-21", "2022-11-24"]}).to generate_range({gte: "2022-11-21", lt: "2022-11-24"}) }
 
-    it "generates a filter on field where value is between" do
-      expect(described_class.new(:created_at, {operator: "between", value: ["2022-11-21", "2022-11-24"]}, :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-11-21", lt: "2022-11-24"}}}
-      ])
-    end
-
-    describe "with various date format" do
-      before { Timecop.freeze(Time.local(2020, 9, 2, 11, 59, 0)) }
-
-      it "handles dates as strings" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: "2022-11-21"}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2022-11-21"}}}
-        ])
-      end
-
-      it "handles durations" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: 3.weeks}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2020-08-12"}}}
-        ])
-      end
-
-      it "handles days durations in string" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: 3, unit: "day"}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2020-08-30"}}}
-        ])
-      end
-
-      it "handles weeks durations in string" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: 3, unit: "week"}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2020-08-12"}}}
-        ])
-      end
-
-      it "handles months durations in string" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: 3, unit: "month"}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2020-06-02"}}}
-        ])
-      end
-
-      it "handles years durations in string" do
-        expect(described_class.new(:created_at, {operator: "greater_than", value: 3, unit: "year"}, :date).as_json).to eq([
-          {range: {created_at: {lt: "2017-09-02"}}}
-        ])
-      end
-    end
-  end
-
-  context "with hash input" do
-    it "generates a filter on field where value is less_than" do
-      expect(described_class.new(:created_at, {less_than: "2022-11-21"}, :date).as_json).to eq([
-        {range: {created_at: {lt: "2022-11-21"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is less_than_or_equal" do
-      expect(described_class.new(:created_at, {less_than_or_equal: Date.new(2022, 10, 1)}, :date).as_json).to eq([
-        {range: {created_at: {lte: "2022-10-01"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is greater_than" do
-      expect(described_class.new(:created_at, {greater_than: "now-1w"}, :date).as_json).to eq([
-        {range: {created_at: {gt: "now-1w"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is between" do
-      expect(described_class.new(:created_at, {between: [Date.new(2022, 10, 1), Date.new(2022, 10, 2)]}, :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-01", lte: "2022-10-02"}}}
-      ])
-    end
-
-    it "generates a filter on field with more than one operator" do
-      expect(described_class.new(:created_at, {less_than_or_equal: Date.new(2022, 10, 1), greater_than: Date.new(2022, 10, 2)}, :date).as_json).to eq([
-        {range: {created_at: {lte: "2022-10-01", gt: "2022-10-02"}}}
-      ])
-    end
-
-    it "raises an error for unknown operator" do
-      expect { described_class.new(:created_at, {less: Date.new(2022, 10, 1)}) }
-        .to raise_error(ArgumentError)
-    end
-  end
-
-  context "with range input" do
-    it "generates a filter on field where value is between" do
-      expect(described_class.new(:created_at, (Date.new(2022, 10, 1)..Date.new(2022, 10, 2)), :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-01", lte: "2022-10-02"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is greater than or equal" do
-      expect(described_class.new(:created_at, Date.new(2022, 10, 1).., :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-01"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is less than or equal" do
-      expect(described_class.new(:created_at, ..Date.new(2022, 10, 1), :date).as_json).to eq([
-        {range: {created_at: {lte: "2022-10-01"}}}
-      ])
-    end
-  end
-
-  context "with array input" do
-    it "generates a filter on field where value is between" do
-      expect(described_class.new(:created_at, [[Date.new(2022, 10, 1), Date.new(2022, 10, 2)]], :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-01", lte: "2022-10-02"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is greater than or equal" do
-      expect(described_class.new(:created_at, [[Date.new(2022, 10, 1), nil]], :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-01"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is less than or equal" do
-      expect(described_class.new(:created_at, [[nil, Date.new(2022, 10, 1)]], :date).as_json).to eq([
-        {range: {created_at: {lte: "2022-10-01"}}}
-      ])
-    end
-  end
-
-  context "with dates" do
-    it "generates a filter on field where value is date" do
-      expect(described_class.new(:created_at, Date.new(2022, 10, 12), :date).as_json).to eq([
-        {range: {created_at: {gte: "2022-10-12", lte: "2022-10-12"}}}
-      ])
-    end
-
-    it "generates a filter on field where value is date with date math" do
-      expect(described_class.new(:created_at, "now-1w/d", :date).as_json).to eq([
-        {range: {created_at: {gte: "now-1w/d", lte: "now-1w/d"}}}
-      ])
-    end
-  end
-
-  context "with more than one input" do
-    it "mixes inputs" do
-      expect(described_class.new(:created_at, [true, ..Date.new(2022, 10, 1)], :date).as_json).to eq([
-        {exists: {field: :created_at}},
-        {range: {created_at: {lte: "2022-10-01"}}}
-      ])
-    end
+    it { expect_value({operator: "greater_than", value: 3.weeks}).to generate_range({lt: "2020-08-12"}) }
+    it { expect_value({operator: "greater_than", value: 3, unit: "day"}).to generate_range({lt: "2020-08-30"}) }
+    it { expect_value({operator: "greater_than", value: 3, unit: "week"}).to generate_range({lt: "2020-08-12"}) }
+    it { expect_value({operator: "greater_than", value: 3, unit: "month"}).to generate_range({lt: "2020-06-02"}) }
+    it { expect_value({operator: "greater_than", value: 3, unit: "year"}).to generate_range({lt: "2017-09-02"}) }
   end
 end

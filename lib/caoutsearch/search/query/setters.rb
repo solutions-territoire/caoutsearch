@@ -30,7 +30,7 @@ module Caoutsearch
           filter_class = Caoutsearch::Filter[as]
           raise ArgumentError, "unexpected type of filter: #{as.inspect}" unless filter_class
 
-          terms = Array.wrap(keys).flat_map { |key| filter_class.new(key, value, type, options).as_json }
+          terms = Array.wrap(keys).flat_map { |key| filter_class.call(key, value, type, options) }
           terms.select(&:present?)
         rescue Caoutsearch::Search::ValueOverflow
           [Caoutsearch::Filter::NONE]

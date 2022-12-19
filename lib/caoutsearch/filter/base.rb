@@ -5,6 +5,10 @@ module Caoutsearch
     class Base
       attr_reader :key, :original_value, :type, :options
 
+      def self.call(...)
+        new(...).as_json
+      end
+
       def initialize(key, original_value, type, options = {})
         @key = key
         @original_value = original_value
