@@ -75,6 +75,16 @@ RSpec.describe Caoutsearch::Filter::Date do
   it { expect_value(.."2022-10-01").to generate_range({lte: "2022-10-01"}) }
 
   it { expect_value("now".."now+1w/d").to generate_range({gte: "now", lte: "now+1w/d"}) }
+  it { expect_value(.."now+1w/d").to generate_range({lte: "now+1w/d"}) }
+  it { expect_value("now+1w/d"..).to generate_range({gte: "now+1w/d"}) }
+
+  it { expect_value("2022-10-01..2022-10-30").to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value("2022-10-01..").to generate_range({gte: "2022-10-01"}) }
+  it { expect_value("..2022-10-01").to generate_range({lte: "2022-10-01"}) }
+
+  it { expect_value("now..now+1w/d").to generate_range({gte: "now", lte: "now+1w/d"}) }
+  it { expect_value("..now+1w/d").to generate_range({lte: "now+1w/d"}) }
+  it { expect_value("now+1w/d..").to generate_range({gte: "now+1w/d"}) }
 
   it { expect_value(time1..time2).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
   it { expect_value(date1..date2).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
