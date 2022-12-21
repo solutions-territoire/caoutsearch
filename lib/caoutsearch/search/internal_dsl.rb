@@ -18,10 +18,12 @@ module Caoutsearch
           contexts: ActiveSupport::HashWithIndifferentAccess.new,
           filters: ActiveSupport::HashWithIndifferentAccess.new,
           defaults: ActiveSupport::HashWithIndifferentAccess.new,
-          aggregations: ActiveSupport::HashWithIndifferentAccess.new,
           suggestions: ActiveSupport::HashWithIndifferentAccess.new,
           sorts: ActiveSupport::HashWithIndifferentAccess.new
         }
+
+        class_attribute :aggregations, instance_accessor: false, default: {}
+        class_attribute :transformations, instance_accessor: false, default: {}
       end
 
       class_methods do
@@ -44,7 +46,7 @@ module Caoutsearch
           end
         end
 
-        %w[filter aggregation sort suggestion].each do |method|
+        %w[filter sort suggestion].each do |method|
           config_attribute = method.pluralize.to_sym
 
           define_method method do |name = nil, **options, &block|
@@ -66,8 +68,38 @@ module Caoutsearch
           sort(new_name) { |direction| sort_by(old_name, direction) }
         end
 
+        def has_aggregation(name, **options, &block)
+          raise ArgumentError, "has_aggregation accepts options or block but not both" if block && options.any?
+
+          self.aggregations = aggregations.dup
+          aggregations[name.to_s] = Caoutsearch::Search::DSL::Item.new(name, options, &block)
+        end
+
         def alias_aggregation(new_name, old_name)
-          aggregation(new_name) { aggregate_with(old_name) }
+          has_aggregation(new_name) do |*args|
+            call_aggregation(old_name, *args)
+          end
+        end
+
+        def transform_aggregation(name, from: nil, track_total_hits: false, &block)
+          name = name.to_s
+          dependencies = Array.wrap(from).map(&:to_s)
+
+          raise ArgumentError, "block is missing" unless block
+
+          if aggregations.exclude?(name)
+            raise ArgumentError, "aggregation #{name} is missing, you may have to define :requires" if dependencies.empty?
+
+            has_aggregation(name) do |*args|
+              track_total_hits! if track_total_hits
+              dependencies.each do |dependency|
+                call_aggregation(dependency, *args)
+              end
+            end
+          end
+
+          self.transformations = transformations.dup
+          transformations[name.to_s] = Caoutsearch::Search::DSL::Item.new(name, {from: from}, &block)
         end
       end
     end

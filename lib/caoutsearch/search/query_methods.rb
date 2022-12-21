@@ -4,7 +4,7 @@ module Caoutsearch
   module Search
     module QueryMethods
       delegate :merge, :merge!, :to_h, :to_json, :as_json, :filters,
-        :add_none, :add_filter, :add_sort, :add_aggregation, :add_suggestion,
+        :add_none, :add_filter, :add_sort, :add_suggestion,
         :build_terms, :should_filter_on, :must_filter_on, :must_not_filter_on,
         :nested_queries, :nested_query,
         to: :elasticsearch_query
@@ -14,6 +14,7 @@ module Caoutsearch
       def elasticsearch_query
         @elasticsearch_query ||= Caoutsearch::Search::Query::Base.new
       end
+      alias_method :query, :elasticsearch_query
 
       # Applying criteria
       # ------------------------------------------------------------------------
@@ -129,28 +130,6 @@ module Caoutsearch
             add_sort(index, direction)
           end
         end
-      end
-
-      # Applying aggregations
-      # ------------------------------------------------------------------------
-      def aggregate_with(*args)
-        args.each do |arg|
-          if arg.is_a?(Hash)
-            arg.each do |key, value|
-              next unless (item = config[:aggregations][key])
-
-              apply_dsl_aggregate(item, value)
-            end
-          elsif (item = config[:aggregations][arg])
-            apply_dsl_aggregate(item)
-          end
-        end
-      end
-
-      def apply_dsl_aggregate(item, *args)
-        return instance_exec(*args, &item.block) if item.has_block?
-
-        add_aggregation(item.name, item.options)
       end
 
       # Applying Suggests

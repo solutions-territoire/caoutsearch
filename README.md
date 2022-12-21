@@ -41,8 +41,8 @@ If you don't have scenarios as complex as those described in this documentation,
     - Full-text query
     - Custom filters
     - Orders
-    - Aggregations
-    - Transform
+    - [Aggregations](#aggregations)
+    - [Transform aggregations](#transform-aggregations)
     - [Responses](#responses)
     - [Loading records](#loading-records)
   - [Model integration](#model-integration)
@@ -180,6 +180,282 @@ We also support elasticsearch's date math
 ##### Match filter
 
 ##### Range filter
+
+#### Aggregations
+
+You can define simple to complex aggregations.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :view_count, sum: { field: :view_count }
+  has_aggregation :popular_tags,
+    filter: { term: { published: true } },
+    aggs: {
+      published: {
+        terms: { field: :tags, size: 10 }
+      }
+    }
+end
+````
+
+Then you can request one or more aggregations at the same time or chain the `aggregate` method.  
+The `aggregations` method will trigger a request and returns a [Response::Aggregations](#responses).
+
+````ruby
+ArticleSearch.aggregate(:view_count).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": { "sum": { "field": "view_count" }}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652>>
+
+ArticleSearch.aggregate(:view_count, :popular_tags).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": {…}, "popular_tags": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652> popular_tags=#<Caoutsearch::Response::Response buckets=…>>
+
+ArticleSearch.aggregate(:view_count).aggregate(:popular_tags).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count": {…}, "popular_tags": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count=#<Caoutsearch::Response::Response value=119652> popular_tags=#<Caoutsearch::Response::Response buckets=…>>
+````
+
+You can create powerful aggregations using blocks and pass arguments to them.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags_since do |date|
+    raise TypeError unless date.is_a?(Date)
+
+    query.aggregations[:popular_tags_since] = {
+      filter: { range: { publication_date: { gte: date.to_s } } },
+      aggs: {
+        published: {
+          terms: { field: :tags, size: 20 }
+        }
+      }
+    }
+  end
+end
+
+ArticleSearch.aggregate(popular_tags_since: 1.day.ago).aggregations
+# ArticleSearch Search { "body": { "aggs": { "popular_tags_since": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations popular_tags_since=#<Caoutsearch::Response::Response …
+````
+
+Only one argument can be passed to an aggregation block.  
+Use an Array or a Hash if you need to pass multiple options.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags_since do |options|
+    # …
+  end
+
+  has_aggregation :popular_tags_between do |(first_date, end_date)|
+    # …
+  end
+end
+
+ArticleSearch.aggregate(popular_tags_since: { date: 1.day.ago, size: 20 })
+ArticleSearch.aggregate(popular_tags_between: [date1, date2])
+````
+
+Finally, you can create a "catch-all" aggregation to handle cumbersome behaviors:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation do |name, options = {}|
+    raise "unxpected_error" unless name.match?(/^view_count_(?<year>\d{4})$/)
+
+    query.aggregations[name] = {
+      filter: { term: { year: $LAST_LATCH_INFO[:year] } },
+      aggs: {
+        filtered: {
+          sum: { field: :view_count }
+        }
+      }
+    }
+  end
+end
+
+ArticleSearch.aggregate(:view_count_2020, :view_count_2019).aggregations
+# ArticleSearch Search { "body": { "aggs": { "view_count_2020": {…}, "view_count_2019": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations view_count_2020=#<Caoutsearch::Response::Response …
+````
+
+#### Transform aggregations
+
+When using [buckets aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket.html) and/or [pipeline aggregation](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-pipeline.html), the path to the expected values can get complicated and become subject to unexpected changes for a public API.
+
+````ruby
+ArticleSearch.aggregate(popular_tags_since: 1.month.ago).aggregations.popular_tags_since.published.buckets.pluck(:key)
+=> ["Blog", "Tech", …]
+````
+
+Instead, you can define transformations to provide simpler access to aggregated data:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags_since do |since|
+    # …
+  end
+
+  transform_aggregation :popular_tags_since do |aggs|
+    aggs.dig(:popular_tags_since, :published, :buckets).pluck(:key)
+  end
+end
+
+ArticleSearch.aggregate(popular_tags_since: 1.month.ago).aggregations.popular_tags_since
+=> ["Blog", "Tech", …]
+````
+
+You can also use transformations to combine multiple aggregations:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :blog_count,     filter: { term: { category: "blog" } }
+  has_aggregation :archives_count, filter: { term: { archived: true } }
+
+  transform_aggregation :stats, from: %i[blog_count archives_count] do |aggs|
+    {
+      blog_count:     aggs.dig(:blog_count, :doc_count),
+      archives_count: aggs.dig(:archives, :doc_count)
+    }
+  end
+end
+
+ArticleSearch.aggregate(:stats).aggregations.stats
+# ArticleSearch Search { "body": { "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> { blog_count: 124, archives_count: 2452 }
+````
+
+This is also usefull to unify the API between different search engines:
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags,
+    filter: { term: { published: true } },
+    aggs: { published: { terms: { field: :tags, size: 10 } } }
+
+  transform_aggregation :popular_tags do |aggs|
+    aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
+  end
+end
+
+class TagSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags,
+    terms: { field: "label", size: 20, order: { used_count: "desc" } }
+
+  transform_aggregation :popular_tags do |aggs|
+    aggs.dig(:popular_tags, :buckets).pluck(:key)
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Blog", "Tech", …]
+
+TagSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Tech", "Blog", …]
+````
+
+Transformations are performed on demand and result is memorized. That means:
+- the result of transformation is not visible in the [Response::Aggregations](#responses) output.
+- the block is called only once for the same search instance.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_aggregation :popular_tags, …
+
+  transform_aggregation :popular_tags do |aggs|
+    tags       = aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
+    authorized = Tag.where(title: tags, authorize: true).pluck(:title)
+    tags & authorized
+  end
+end
+
+article_search = ArticleSearch.aggregate(:popular_tags)
+=> #<ArticleSearch current_aggregations: [:popular_tags]>
+
+article_search.aggregations
+# ArticleSearch Search (10ms / took 5ms)
+=> #<Caoutsearch::Response::Aggregations popular_tags=#<Caoutsearch::Response::Response doc_count=100 …
+
+article_search.aggregations.popular_tags
+# (10.2ms)  SELECT "tags"."title" FROM "tags" WHERE "tags"."title" IN …
+=> ["Blog", "Tech", …]
+
+article_search.aggregations.popular_tags
+=> ["Blog", "Tech", …]
+
+article_search.search("Tech").aggregations.popular_tags
+# ArticleSearch Search (10ms / took 5ms)
+# (10.2ms)  SELECT "tags"."title" FROM "tags" WHERE "tags"."title" IN …
+=> ["Blog", "Tech", …]
+````
+
+Be careful to avoid using `aggregations.<aggregation_name>` inside a transformation block: it can lead to an infinite recursion.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  transform_aggregation :popular_tags do
+    aggregations.popular_tags.buckets.pluck("key")
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+Traceback (most recent call last):
+      4: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      3: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      2: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+      1: from app/searches/article_search.rb:3:in `block in <class:ArticleSearch>'
+SystemStackError (stack level too deep)
+````
+
+Instead, use the argument passed to the block: it's is a shortcut for `response.aggregations` which is a [Response::Reponse](#responses) and not a [Response::Aggregations](#responses).
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  transform_aggregation :popular_tags do |aggs|
+    aggs.popular_tags.buckets.pluck("key")
+  end
+end
+
+ArticleSearch.aggregate(:popular_tags).aggregations.popular_tags
+=> ["Blog", "Tech", …]
+````
+
+One last helpful argument is `track_total_hits` which allows to perform calculations over aggregations using the `total_count` method without sending a second request.  
+Take a look at [Total count](#total-count) to understand why a second request could be performed.
+
+````ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  aggregation :tagged, filter: { exist: "tag" }
+
+  transform_aggregation :tagged_rate, from: :tagged, track_total_hits: true do |aggs|
+    count = aggs.dig(:tagged, :doc_count)
+    count.to_f / total_count
+  end
+
+  transform_aggregation :tagged_rate_without_track_total_hits, from: :tagged do |aggs|
+    count = aggs.dig(:tagged, :doc_count)
+    count.to_f / total_count
+  end
+end
+
+ArticleSearch.aggregate(:tagged_rate).aggregations.tagged_rate
+# ArticleSearch Search { "body": { "track_total_hits": true, "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+=> 0.95
+
+ArticleSearch.aggregate(:tagged_rate_without_track_total_hits).aggregations.tagged_rate
+# ArticleSearch Search { "body": { "aggs": { "blog_count": {…}, "archives_count": {…}}}}
+# ArticleSearch Search (10ms / took 5ms)
+# ArticleSearch Search { "body": { "track_total_hits": true, "aggs": { "blog_count": {…}, "archives_count": 
+# ArticleSearch Search (10ms / took 5ms)
+=> 0.95
+````
 
 #### Responses
 
