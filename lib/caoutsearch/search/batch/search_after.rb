@@ -16,6 +16,7 @@ module Caoutsearch
               }
             )
           }
+          request_payload[:body][:sort] ||= [:_shard_doc]
 
           total = nil
           progress = 0
