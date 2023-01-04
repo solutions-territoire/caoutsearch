@@ -17,11 +17,11 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
       .to_return_json(body: {id: "94GY/RZnrjmaRD1vx6qM7w"})
 
     stubbed_first_search = stub_elasticsearch_request(:post, "_search")
-      .with(body: {track_total_hits: true, size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}})
+      .with(body: {track_total_hits: true, size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}, sort: ["_shard_doc"]})
       .to_return_json(body: {hits: {total: {value: 12}, hits: hits[0..9]}, pit_id: "94GY/RZnrjmaRD1vx6qM7w"})
 
     stubbed_second_search = stub_elasticsearch_request(:post, "_search")
-      .with(body: {size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}, search_after: [9]})
+      .with(body: {size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}, sort: ["_shard_doc"], search_after: [9]})
       .to_return_json(body: {hits: {total: {value: 12}, hits: hits[10..]}, pit_id: "94GY/RZnrjmaRD1vx6qM7w"})
 
     stubbed_close_pit = stub_elasticsearch_request(:delete, "_pit")
@@ -43,11 +43,11 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
       .to_return_json(body: {id: "94GY/RZnrjmaRD1vx6qM7w"})
 
     stubbed_first_search = stub_elasticsearch_request(:post, "_search")
-      .with(body: {track_total_hits: true, size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}})
+      .with(body: {track_total_hits: true, size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "1m"}, sort: ["_shard_doc"]})
       .to_return_json(body: {hits: {total: {value: 12}, hits: hits[0..9]}, pit_id: "ikYT/9bwfqz+vvCIHVfkkg"})
 
     stubbed_second_search = stub_elasticsearch_request(:post, "_search")
-      .with(body: {size: 10, pit: {id: "ikYT/9bwfqz+vvCIHVfkkg", keep_alive: "1m"}, search_after: [9]})
+      .with(body: {size: 10, pit: {id: "ikYT/9bwfqz+vvCIHVfkkg", keep_alive: "1m"}, sort: ["_shard_doc"], search_after: [9]})
       .to_return_json(body: {hits: {total: {value: 12}, hits: hits[10..]}, pit_id: "TlNcKTPu+EwTBIjBwE7TQQ"})
 
     stubbed_close_pit = stub_elasticsearch_request(:delete, "_pit")
