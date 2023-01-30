@@ -5,12 +5,13 @@ require "spec_helper"
 RSpec.describe Caoutsearch::Search::QueryBuilder::Aggregations do
   let!(:search_class) do
     stub_search_class("SampleSearch") do
-      has_aggregation :view_count, sum: {field: :view_count}
-      has_aggregation :tags,
+      has_aggregation :view_count, {sum: {field: :view_count}}
+      has_aggregation :tags, {
         filter: {term: {published: true}},
         aggs: {
           published: {terms: {field: :tags, size: 10}}
         }
+      }
 
       has_aggregation :popular_tags_since do |date|
         query.aggregations[:popular_tags_since] = {

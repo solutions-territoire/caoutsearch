@@ -68,11 +68,11 @@ module Caoutsearch
           sort(new_name) { |direction| sort_by(old_name, direction) }
         end
 
-        def has_aggregation(name, **options, &block)
-          raise ArgumentError, "has_aggregation accepts options or block but not both" if block && options.any?
+        def has_aggregation(name, definition = {}, &block)
+          raise ArgumentError, "has_aggregation accepts Hash definition or block but not both" if block && definition.any?
 
           self.aggregations = aggregations.dup
-          aggregations[name.to_s] = Caoutsearch::Search::DSL::Item.new(name, options, &block)
+          aggregations[name.to_s] = Caoutsearch::Search::DSL::Item.new(name, definition, &block)
         end
 
         def alias_aggregation(new_name, old_name)

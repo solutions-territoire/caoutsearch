@@ -187,14 +187,15 @@ You can define simple to complex aggregations.
 
 ````ruby
 class ArticleSearch < Caoutsearch::Search::Base
-  has_aggregation :view_count, sum: { field: :view_count }
-  has_aggregation :popular_tags,
+  has_aggregation :view_count, { sum: { field: :view_count } }
+  has_aggregation :popular_tags, {
     filter: { term: { published: true } },
     aggs: {
       published: {
         terms: { field: :tags, size: 10 }
       }
     }
+  }
 end
 ````
 
@@ -314,8 +315,8 @@ You can also use transformations to combine multiple aggregations:
 
 ````ruby
 class ArticleSearch < Caoutsearch::Search::Base
-  has_aggregation :blog_count,     filter: { term: { category: "blog" } }
-  has_aggregation :archives_count, filter: { term: { archived: true } }
+  has_aggregation :blog_count,     { filter: { term: { category: "blog" } } }
+  has_aggregation :archives_count, { filter: { term: { archived: true } } }
 
   transform_aggregation :stats, from: %i[blog_count archives_count] do |aggs|
     {
@@ -335,9 +336,10 @@ This is also usefull to unify the API between different search engines:
 
 ````ruby
 class ArticleSearch < Caoutsearch::Search::Base
-  has_aggregation :popular_tags,
+  has_aggregation :popular_tags, {
     filter: { term: { published: true } },
     aggs: { published: { terms: { field: :tags, size: 10 } } }
+  }
 
   transform_aggregation :popular_tags do |aggs|
     aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
@@ -345,8 +347,9 @@ class ArticleSearch < Caoutsearch::Search::Base
 end
 
 class TagSearch < Caoutsearch::Search::Base
-  has_aggregation :popular_tags,
+  has_aggregation :popular_tags, {
     terms: { field: "label", size: 20, order: { used_count: "desc" } }
+  }
 
   transform_aggregation :popular_tags do |aggs|
     aggs.dig(:popular_tags, :buckets).pluck(:key)
@@ -366,7 +369,7 @@ Transformations are performed on demand and result is memorized. That means:
 
 ````ruby
 class ArticleSearch < Caoutsearch::Search::Base
-  has_aggregation :popular_tags, …
+  has_aggregation :popular_tags, {…}
 
   transform_aggregation :popular_tags do |aggs|
     tags       = aggs.dig(:popular_tags, :published, :buckets).pluck(:key)
