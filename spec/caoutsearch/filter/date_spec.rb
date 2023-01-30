@@ -111,20 +111,4 @@ RSpec.describe Caoutsearch::Filter::Date do
       {range: {created_at: {lte: "2022-10-01"}}}
     )
   end
-
-  context "with deprecated hash input" do
-    before do
-      Timecop.freeze(Time.local(2020, 9, 2, 11, 59, 0))
-    end
-
-    it { expect_value({operator: "less_than", value: "2022-11-21"}).to generate_range({gte: "2022-11-21"}) }
-    it { expect_value({operator: "greater_than", value: "2022-11-21"}).to generate_range({lt: "2022-11-21"}) }
-    it { expect_value({operator: "between", value: ["2022-11-21", "2022-11-24"]}).to generate_range({gte: "2022-11-21", lt: "2022-11-24"}) }
-
-    it { expect_value({operator: "greater_than", value: 3.weeks}).to generate_range({lt: "2020-08-12"}) }
-    it { expect_value({operator: "greater_than", value: 3, unit: "day"}).to generate_range({lt: "2020-08-30"}) }
-    it { expect_value({operator: "greater_than", value: 3, unit: "week"}).to generate_range({lt: "2020-08-12"}) }
-    it { expect_value({operator: "greater_than", value: 3, unit: "month"}).to generate_range({lt: "2020-06-02"}) }
-    it { expect_value({operator: "greater_than", value: 3, unit: "year"}).to generate_range({lt: "2017-09-02"}) }
-  end
 end

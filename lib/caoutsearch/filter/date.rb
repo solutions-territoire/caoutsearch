@@ -27,8 +27,6 @@ module Caoutsearch
             build_range_query(input)
           when ::Hash
             case input
-            in { operator:, value:, **other}
-              build_legacy_range_query_from_hash(input)
             in { between: dates }
               build_range_query(dates)
             else
@@ -59,23 +57,6 @@ module Caoutsearch
         end
 
         query
-      end
-
-      def build_legacy_range_query_from_hash(input)
-        ActiveSupport::Deprecation.warn("This form of hash to search for dates will be removed")
-        operator, value, unit = input.values_at(:operator, :value, :unit)
-
-        case operator
-        when "less_than"
-          {range: {key => {gte: cast_date(value, unit)}}}
-        when "greater_than"
-          {range: {key => {lt: cast_date(value, unit)}}}
-        when "between"
-          dates = value.map { |v| cast_date(v, unit) }.sort
-          {range: {key => {gte: dates[0], lt: dates[1]}}}
-        else
-          raise ArgumentError, "unknown operator #{operator.inspect} in #{value.inspect}"
-        end
       end
 
       RANGE_OPERATORS = {
