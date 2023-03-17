@@ -5,7 +5,7 @@ module Caoutsearch
     module SearchMethods
       extend ActiveSupport::Concern
 
-      attr_reader :current_context, :current_order, :current_aggregations,
+      attr_reader :current_contexts, :current_order, :current_aggregations,
         :current_suggestions, :current_fields, :current_source
 
       # Public API
@@ -97,8 +97,9 @@ module Caoutsearch
         self
       end
 
-      def context!(value)
-        @current_context = value
+      def context!(*values)
+        @current_contexts ||= []
+        @current_contexts += values.flatten
         self
       end
 
@@ -173,7 +174,7 @@ module Caoutsearch
         "aggregations"    => :@current_aggregations,
         "suggest"         => :@current_suggestions,
         "suggestions"     => :@current_suggestions,
-        "context"         => :@current_context,
+        "context"         => :@current_contexts,
         "order"           => :@current_order,
         "page"            => :@current_page,
         "offset"          => :@current_offset,

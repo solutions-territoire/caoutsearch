@@ -5,6 +5,7 @@ module Caoutsearch
     module QueryBuilder
       extend ActiveSupport::Concern
       include QueryBuilder::Aggregations
+      include QueryBuilder::Contexts
 
       def build
         reset_variable(:@elasticsearch_query)
@@ -13,7 +14,7 @@ module Caoutsearch
         run_callbacks :build do
           build_prepend_hash
           build_search_criteria
-          build_context
+          build_contexts
           build_defaults
           build_limits
           build_orders
@@ -33,13 +34,6 @@ module Caoutsearch
 
       def build_search_criteria
         search_by(search_criteria)
-      end
-
-      def build_context
-        return unless current_context
-
-        item = config[:contexts][current_context.to_s]
-        instance_exec(&item.block) if item
       end
 
       def build_defaults
