@@ -1,0 +1,20 @@
+input: .
+output: .retype
+url: https://mon-territoire.github.io/caoutsearch
+
+branding:
+  title: Caoutsearch
+  label: Docs
+
+links:
+  - text: Github
+    link: https://github.com/mon-territoire/caoutsearch
+    icon: mark-github
+    target: blank
+  - text: Issues
+    link: https://github.com/mon-territoire/caoutsearch/issues
+    icon: issue-opened-24
+    target: blank
+
+footer:
+  copyright: "&copy; Copyright {{ year }}. All rights reserved."
