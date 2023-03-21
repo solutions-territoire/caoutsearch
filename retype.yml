@@ -4,17 +4,28 @@ url: https://mon-territoire.github.io/caoutsearch
 
 branding:
   title: Caoutsearch
-  label: Docs
+  label: 0.0.6
+
+meta:
+  title: " | Caoutsearch"
 
 links:
+  - text: Rubygem
+    link: https://rubygems.org/gems/caoutsearch
+    icon: ruby
+    target: blank
   - text: Github
     link: https://github.com/mon-territoire/caoutsearch
     icon: mark-github
     target: blank
   - text: Issues
     link: https://github.com/mon-territoire/caoutsearch/issues
-    icon: issue-opened-24
+    icon: bug
     target: blank
+  # - text: "Changelog"
+  #   link: https://github.com/mon-territoire/caoutsearch/releases
+  #   icon: versions
+  #   target: blank
 
 footer:
-  copyright: "&copy; Copyright {{ year }}. All rights reserved."
+  copyright: "© 2023 [Mon Territoire](https://mon-territoire.fr) - [MIT License](https://github.com/mon-territoire/caoutsearch/blob/main/LICENSE)"
