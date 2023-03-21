@@ -23,6 +23,23 @@ ArticleSearch.context(:public, :blog)
 ArticleSearch.context(:public).context(:blog)
 ```
 
+Current context can used to alter search queries or filters:
+
+```ruby
+class ArticleSearch < Caoutsearch::Search::Base
+  has_context :public do
+    filters << { term: { published: true } }
+  end
+
+  match_all do |value|
+    targets = %w[title body]
+    targets << "author" unless current_context?(:public)
+
+    filter_by(targets, value)
+  end
+end
+```
+
 Missing contexts doesn't raise an expection and are ignored.
 It allows you to apply contexts to any searches, whether the context is implemented or not:
 

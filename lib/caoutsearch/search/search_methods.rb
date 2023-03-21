@@ -190,7 +190,7 @@ module Caoutsearch
         self
       end
 
-      # Getters
+      # Getters and predicates
       # ------------------------------------------------------------------------
       def search_criteria
         @search_criteria ||= []
@@ -212,6 +212,10 @@ module Caoutsearch
         else
           0
         end
+      end
+
+      def current_context?(name)
+        @current_contexts&.map(&:to_s)&.include?(name.to_s)
       end
 
       # Criteria handlers
