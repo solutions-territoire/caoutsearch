@@ -15,13 +15,13 @@ module Caoutsearch
         #   self.config[:filter][key] = ...
         #
         class_attribute :config, default: {
-          contexts: ActiveSupport::HashWithIndifferentAccess.new,
           filters: ActiveSupport::HashWithIndifferentAccess.new,
           defaults: ActiveSupport::HashWithIndifferentAccess.new,
           suggestions: ActiveSupport::HashWithIndifferentAccess.new,
           sorts: ActiveSupport::HashWithIndifferentAccess.new
         }
 
+        class_attribute :contexts, instance_accessor: false, default: {}
         class_attribute :aggregations, instance_accessor: false, default: {}
         class_attribute :transformations, instance_accessor: false, default: {}
       end
@@ -32,7 +32,7 @@ module Caoutsearch
           config[:match_all] = block
         end
 
-        %w[context default].each do |method|
+        %w[default].each do |method|
           config_attribute = method.pluralize.to_sym
 
           define_method method do |name = nil, &block|
@@ -66,6 +66,11 @@ module Caoutsearch
 
         def alias_sort(new_name, old_name)
           sort(new_name) { |direction| sort_by(old_name, direction) }
+        end
+
+        def has_context(name, &block)
+          self.contexts = contexts.dup
+          contexts[name.to_s] = Caoutsearch::Search::DSL::Item.new(name, &block)
         end
 
         def has_aggregation(name, definition = {}, &block)

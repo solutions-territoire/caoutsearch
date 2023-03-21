@@ -5,7 +5,7 @@ module Caoutsearch
     module Inspect
       PROPERTIES_TO_INSPECT = %i[
         search_criteria
-        current_context
+        current_contexts
         current_order
         current_page
         current_limit
