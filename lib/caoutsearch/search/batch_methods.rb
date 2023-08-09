@@ -31,7 +31,7 @@ module Caoutsearch
         end
       end
 
-      def find_hits_in_batches(implementation: :search_after, **options)
+      def find_hits_in_batches(pit_id: nil, keep_alive: nil, implementation: :search_after, **options)
         batch_size = options[:batch_size]&.to_i || @current_limit&.to_i || 1000
 
         unless block_given?
@@ -44,7 +44,17 @@ module Caoutsearch
           raise ArgumentError, "unexpected implementation argument: #{implementation.inspect}"
         end
 
-        method(implementation).call(batch_size: batch_size, **options) do |hits|
+        batch_options = {
+          batch_size: batch_size,
+          **options
+        }
+
+        # Only pass pit and keep_alive for the search_after implementation
+        if implementation == :search_after
+          batch_options.merge!(pit_id: pit_id, keep_alive: keep_alive)
+        end
+
+        method(implementation).call(**batch_options) do |hits|
           yield hits
         end
       end
