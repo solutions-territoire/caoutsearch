@@ -4,8 +4,8 @@ module Caoutsearch
   module Search
     module Batch
       module SearchAfter
-        def search_after(keep_alive: "1m", batch_size: 1000, &block)
-          pit_id = open_point_in_time(keep_alive: keep_alive)
+        def search_after(pit_id: nil, keep_alive: "1m", batch_size: 1000, &block)
+          pit_id ||= open_point_in_time(keep_alive: keep_alive)
           search = per(batch_size).track_total_hits
 
           request_payload = {
