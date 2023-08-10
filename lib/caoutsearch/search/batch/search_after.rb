@@ -4,8 +4,9 @@ module Caoutsearch
   module Search
     module Batch
       module SearchAfter
-        def search_after(pit_id: nil, keep_alive: "1m", batch_size: 1000, &block)
-          pit_id ||= open_point_in_time(keep_alive: keep_alive)
+        def search_after(pit: nil, keep_alive: "1m", batch_size: 1000, &block)
+          pit_from_arguments = !pit.nil?
+          pit_id = pit_from_arguments ? pit : open_point_in_time(keep_alive: keep_alive)
           search = per(batch_size).track_total_hits
 
           request_payload = {
@@ -57,7 +58,7 @@ module Caoutsearch
             end
           end
         ensure
-          close_point_in_time(pit_id) if pit_id
+          close_point_in_time(pit_id) if pit_id && !pit_from_arguments
         end
 
         def raise_enhance_message_when_pit_failed(error, keep_alive, requested_at, last_response_time)
