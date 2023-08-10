@@ -38,6 +38,23 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
     end
   end
 
+  it "use given PIT ID and do not close it" do
+    stubbed_open_pit = stub_elasticsearch_request(:post, "samples/_pit?keep_alive=1m")
+
+    stubbed_search = stub_elasticsearch_request(:post, "_search")
+      .with(body: {track_total_hits: true, size: 10, pit: {id: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "10m"}, sort: ["_shard_doc"]})
+      .to_return_json(body: {hits: {total: {value: 5}, hits: hits[0..4]}, pit_id: "ikYT/9bwfqz+vvCIHVfkkg"})
+
+    stubbed_close_pit = stub_elasticsearch_request(:delete, "_pit")
+
+    search.search_after(batch_size: 10, pit: "94GY/RZnrjmaRD1vx6qM7w", keep_alive: "10m") { |_batch| }
+    aggregate_failures do
+      expect(stubbed_open_pit).not_to have_been_requested
+      expect(stubbed_search).to have_been_requested.once
+      expect(stubbed_close_pit).not_to have_been_requested
+    end
+  end
+
   it "updates the PIT ID for each requests when it changes" do
     stubbed_open_pit = stub_elasticsearch_request(:post, "samples/_pit?keep_alive=1m")
       .to_return_json(body: {id: "94GY/RZnrjmaRD1vx6qM7w"})
