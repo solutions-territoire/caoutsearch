@@ -7,26 +7,13 @@ module Caoutsearch
   module Testing
     module MockRequests
       def stub_elasticsearch_request(verb, pattern)
-        transport = Caoutsearch.client.transport
-        host = transport.__full_url(transport.hosts[0])
-
-        # Elasticsearch::Client is verify the connection
-        #
-        unless @subbed_verify
-          root_url = URI.join(host, "/").to_s
-          body = +MultiJson.dump({version: {number: "8.4.1"}})
-          @subbed_verify = stub_request(:get, root_url).to_return(
-            headers: {"Content-Type" => "application/json", "X-Elastic-Product" => "Elasticsearch"},
-            status: 200,
-            body: body
-          )
-        end
+        stub_elasticsearch_validation_request
 
         case pattern
         when String
-          pattern = URI.join(host, pattern).to_s
+          pattern = URI.join(elasticsearch_client_host, pattern).to_s
         when Regexp
-          pattern = URI.join(host, pattern.source).to_s
+          pattern = URI.join(elasticsearch_client_host, pattern.source).to_s
           pattern = Regexp.new(pattern)
         else
           raise TypeError, "wrong type received for URL pattern"
@@ -99,6 +86,45 @@ module Caoutsearch
         end
 
         search_request
+      end
+
+      private
+
+      def elasticsearch_client_host
+        @client_host ||= begin
+          transport = Caoutsearch.client.transport
+          transport.__full_url(transport.hosts[0])
+        end
+      end
+
+      # Elasticsearch::Client is verifying the connection to ES when calling
+      # the first request on the client.
+      #
+      # Prior to version 8.9, it sent a request to "/" before the first request
+      # and match the the "X-Elastic-Product" header and version returned.
+      #
+      # Since 8.9, it matches only the header on the first emitted request.
+      # Because we cannot we cannot edit all the responses headers configured
+      # after calling `stub_elasticsearch_request`, we better have to
+      # call the stubbed request to '/' before any request.
+      #
+      def stub_elasticsearch_validation_request
+        @stubbed_elasticsearch_validation_request ||= begin
+          root_url = URI.join(elasticsearch_client_host, "/").to_s
+          body = +MultiJson.dump({version: {number: Elasticsearch::VERSION}})
+
+          stubbed_request = stub_request(:get, root_url).to_return(
+            headers: {"Content-Type" => "application/json", "X-Elastic-Product" => "Elasticsearch"},
+            status: 200,
+            body: body
+          )
+
+          if Gem::Version.new(Elasticsearch::VERSION) >= Gem::Version.new("8.9.0")
+            Caoutsearch.client.perform_request("GET", "/")
+          end
+
+          stubbed_request
+        end
       end
     end
   end

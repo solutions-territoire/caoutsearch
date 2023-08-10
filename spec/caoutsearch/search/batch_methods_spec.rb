@@ -5,23 +5,12 @@ require "spec_helper"
 RSpec.describe Caoutsearch::Search::BatchMethods, active_record: true do
   let(:search_class) { stub_search_class("SampleSearch") }
   let(:search) { search_class.new }
-  let(:records) { 12.times.map { Sample.create } }
+  let(:records) { Array.new(12) { Sample.create } }
 
   let(:hits) do
-    [
-      {"_id" => records[0].id, "sort" => [records[0].id]},
-      {"_id" => records[1].id, "sort" => [records[1].id]},
-      {"_id" => records[2].id, "sort" => [records[2].id]},
-      {"_id" => records[3].id, "sort" => [records[3].id]},
-      {"_id" => records[4].id, "sort" => [records[4].id]},
-      {"_id" => records[5].id, "sort" => [records[5].id]},
-      {"_id" => records[6].id, "sort" => [records[6].id]},
-      {"_id" => records[7].id, "sort" => [records[7].id]},
-      {"_id" => records[8].id, "sort" => [records[8].id]},
-      {"_id" => records[9].id, "sort" => [records[9].id]},
-      {"_id" => records[10].id, "sort" => [records[10].id]},
-      {"_id" => records[11].id, "sort" => [records[11].id]}
-    ]
+    records.map do |record|
+      {"_id" => record.id, "sort" => [record.id]}
+    end
   end
 
   before do

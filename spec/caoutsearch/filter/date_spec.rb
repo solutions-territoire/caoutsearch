@@ -3,10 +3,10 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Filter::Date do
-  let(:date1) { Date.new(2022, 10, 1) }
-  let(:date2) { Date.new(2022, 10, 30) }
-  let(:time1) { Time.new(2022, 10, 1, 8, 0, 0, "UTC") }
-  let(:time2) { Time.new(2022, 10, 1, 12, 0, 0, "UTC") }
+  let(:first_date) { Date.new(2022, 10, 1) }
+  let(:last_date) { Date.new(2022, 10, 30) }
+  let(:first_time) { Time.new(2022, 10, 1, 8, 0, 0, "UTC") }
+  let(:last_time) { Time.new(2022, 10, 1, 12, 0, 0, "UTC") }
 
   def expect_value(input_value)
     expect(described_class.call(:created_at, input_value, :date))
@@ -25,7 +25,7 @@ RSpec.describe Caoutsearch::Filter::Date do
 
   it { expect_value("2022-10-01").to generate_range({gte: "2022-10-01", lte: "2022-10-01"}) }
   it { expect_value("now-1w/d").to generate_range({gte: "now-1w/d", lte: "now-1w/d"}) }
-  it { expect_value(date1).to generate_range({gte: "2022-10-01", lte: "2022-10-01"}) }
+  it { expect_value(first_date).to generate_range({gte: "2022-10-01", lte: "2022-10-01"}) }
 
   it { expect_value({lt: "2022-11-21"}).to generate_range({lt: "2022-11-21"}) }
   it { expect_value({gt: "2022-11-21"}).to generate_range({gt: "2022-11-21"}) }
@@ -52,7 +52,7 @@ RSpec.describe Caoutsearch::Filter::Date do
 
   it do
     expect_value(
-      {less_than_or_equal: date1, greater_than: date2}
+      {less_than_or_equal: first_date, greater_than: last_date}
     ).to generate_range(
       {lte: "2022-10-01", gt: "2022-10-30"}
     )
@@ -66,8 +66,8 @@ RSpec.describe Caoutsearch::Filter::Date do
 
   it { expect_value({between: ["2022-10-01", "2022-10-30"]}).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
   it { expect_value({between: ["now", "now+1w/d"]}).to generate_range({gte: "now", lte: "now+1w/d"}) }
-  it { expect_value({between: [date1, date2]}).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
-  it { expect_value({between: [time1, time2]}).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+  it { expect_value({between: [first_date, last_date]}).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value({between: [first_time, last_time]}).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
 
   it { expect_value("2022-10-01".."2022-10-30").to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
   it { expect_value("2022-10-01"..."2022-10-30").to generate_range({gte: "2022-10-01", lt: "2022-10-30"}) }
@@ -86,11 +86,11 @@ RSpec.describe Caoutsearch::Filter::Date do
   it { expect_value("..now+1w/d").to generate_range({lte: "now+1w/d"}) }
   it { expect_value("now+1w/d..").to generate_range({gte: "now+1w/d"}) }
 
-  it { expect_value(time1..time2).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
-  it { expect_value(date1..date2).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
-  it { expect_value(date1...date2).to generate_range({gte: "2022-10-01", lt: "2022-10-30"}) }
-  it { expect_value(date1..).to generate_range({gte: "2022-10-01"}) }
-  it { expect_value(..date2).to generate_range({lte: "2022-10-30"}) }
+  it { expect_value(first_time..last_time).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+  it { expect_value(first_date..last_date).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value(first_date...last_date).to generate_range({gte: "2022-10-01", lt: "2022-10-30"}) }
+  it { expect_value(first_date..).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value(..last_date).to generate_range({lte: "2022-10-30"}) }
 
   it { expect_value([["2022-10-01", "2022-10-30"]]).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
   it { expect_value([["2022-10-01", nil]]).to generate_range({gte: "2022-10-01"}) }
@@ -98,10 +98,10 @@ RSpec.describe Caoutsearch::Filter::Date do
 
   it { expect_value([["now", "now+1w/d"]]).to generate_range({gte: "now", lte: "now+1w/d"}) }
 
-  it { expect_value([[time1, time2]]).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
-  it { expect_value([[date1, date2]]).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
-  it { expect_value([[date1, nil]]).to generate_range({gte: "2022-10-01"}) }
-  it { expect_value([[nil, date2]]).to generate_range({lte: "2022-10-30"}) }
+  it { expect_value([[first_time, last_time]]).to generate_range({gte: "2022-10-01T08:00:00.000Z", lte: "2022-10-01T12:00:00.000Z"}) }
+  it { expect_value([[first_date, last_date]]).to generate_range({gte: "2022-10-01", lte: "2022-10-30"}) }
+  it { expect_value([[first_date, nil]]).to generate_range({gte: "2022-10-01"}) }
+  it { expect_value([[nil, last_date]]).to generate_range({lte: "2022-10-30"}) }
 
   it do
     expect_value(

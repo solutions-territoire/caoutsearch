@@ -26,5 +26,8 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
 
+    - name: Set up Appraisal
+      run: bundle exec appraisal install
+
     - name: Run tests
-      run: bundle exec rspec
+      run: CC_TEST_REPORTER_ID=1 bundle exec appraisal rspec

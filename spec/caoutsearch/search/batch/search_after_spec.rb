@@ -7,8 +7,8 @@ RSpec.describe Caoutsearch::Search::Batch::SearchAfter do
   let(:search) { search_class.new }
 
   let(:hits) do
-    12.times.map do |id|
-      {"_id" => id, "sort" => [id]}
+    Array.new(12) do |i|
+      {"_id" => i, "sort" => [i]}
     end
   end
 
