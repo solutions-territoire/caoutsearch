@@ -7,7 +7,7 @@ RSpec.describe Caoutsearch::Search::Batch::Scroll do
   let(:search) { search_class.new }
 
   let(:hits) do
-    12.times.map do |i|
+    Array.new(12) do |i|
       {"_id" => i}
     end
   end
