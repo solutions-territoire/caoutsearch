@@ -20,6 +20,10 @@ It is used in production in a robust application, updated and maintained for sev
 Caoutsearch was inspired by awesome gems such as [elasticsearch-rails](https://github.com/elastic/elasticsearch-rails) or [search_flip](https://github.com/mrkamel/search_flip).  
 Depending on your search scenarios, they may better suite your needs.
 
+## Documentation
+
+Visit our [offical documentation](https://mon-territoire.github.io/caoutsearch) to understand how to use Caoutsearch.
+
 ## Installation
 
 Add the gem in your Gemfile:
@@ -46,7 +50,6 @@ end
 ArticleIndex.reindex(:tags)
 ```
 
-
 ```ruby
 class ArticleSearch < Caoutsearch::Search::Base
   filter :title, as: :match
@@ -66,15 +69,10 @@ end
 ArticleSearch.search(published_on: [["now-1y", nil]]).aggregate(:popular_tags)
 ```
 
-
-## Documentation
-
-Visit our [offical documentation](https://mon-territoire.github.io/caoutsearch) to understand how to use Caoutsearch.
-
 ## Contributing
 
-1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/mon-territoire/caoutsearch)
-2. Fork the [repository](https://github.com/mon-territoire/caoutsearch)
+1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/activejob-status)
+2. Fork the [repository](https://github.com/inkstak/activejob-status)
 3. Create your feature branch
 4. Ensure RSpec & Rubocop are passing
 4. Create a pull request
@@ -85,6 +83,12 @@ Visit our [offical documentation](https://mon-territoire.github.io/caoutsearch) 
 bundle exec rspec
 bundle exec rubocop
 bundle exec standardrb
+```
+
+To run RSpec against various version of Rails dependencies:
+```bash
+bundle exec appraisal install
+bundle exec appraisal rspec
 ```
 
 All of them can be run with:
