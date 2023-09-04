@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors = ["Savater Sebastien", "Bailhache Jeanne"]
   s.email = "github.60k5k@simplelogin.co"
 
-  s.homepage = "http://github.com/mon-territoire/caoutsearch"
+  s.homepage = "http://github.com/solutions-territoire/caoutsearch"
   s.licenses = ["MIT"]
   s.summary = "An alternative approach to index & search with Elasticsearch & Ruby on Rails"
 

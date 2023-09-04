@@ -1,6 +1,6 @@
 input: .
 output: .retype
-url: https://mon-territoire.github.io/caoutsearch
+url: https://solutions-territoire.github.io/caoutsearch
 
 branding:
   title: Caoutsearch
@@ -15,17 +15,17 @@ links:
     icon: ruby
     target: blank
   - text: Github
-    link: https://github.com/mon-territoire/caoutsearch
+    link: https://github.com/solutions-territoire/caoutsearch
     icon: mark-github
     target: blank
   - text: Issues
-    link: https://github.com/mon-territoire/caoutsearch/issues
+    link: https://github.com/solutions-territoire/caoutsearch/issues
     icon: bug
     target: blank
   # - text: "Changelog"
-  #   link: https://github.com/mon-territoire/caoutsearch/releases
+  #   link: https://github.com/solutions-territoire/caoutsearch/releases
   #   icon: versions
   #   target: blank
 
 footer:
-  copyright: "© 2023 [Mon Territoire](https://mon-territoire.fr) - [MIT License](https://github.com/mon-territoire/caoutsearch/blob/main/LICENSE)"
+  copyright: "© 2023 [Solutions & Territoire](https://solutions-territoire.fr) - [MIT License](https://github.com/solutions-territoire/caoutsearch/blob/main/LICENSE)"
