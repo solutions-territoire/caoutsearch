@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mon-territoire.github.io/caoutsearch/sitemap.xml.gz
+Sitemap: https://solutions-territoire.github.io/caoutsearch/sitemap.xml.gz
