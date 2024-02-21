@@ -25,7 +25,11 @@ module Caoutsearch
         protected
 
         def default_mappings
-          path = ::Rails.root.join("config/elasticsearch/#{index_name}.json")
+          if defined?(Rails)
+            path = ::Rails.root.join("config/elasticsearch/#{index_name}.json")
+          else
+            raise NotImplementedError, "Mappings files cannot be found out of a Rails application"
+          end
           raise ArgumentError, "No mappings file found for #{index_name} at #{path}" unless path.exist?
 
           MultiJson.load(path.read)
