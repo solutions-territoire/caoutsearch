@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-root" content="/caoutsearch">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.3.0.747151454675">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.5.0.761840705152">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 3.3.0">
+    <meta name="generator" content="Retype 3.5.0">
 
     <!-- Primary Meta Tags -->
-    <title>Home | Caoutsearch</title>
-    <meta name="title" content="Home | Caoutsearch">
+    <title>Overview | Caoutsearch</title>
+    <meta name="title" content="Overview | Caoutsearch">
     <meta name="description" content="Gem Version CI Status Ruby Style Guide Maintainability Test Coverage">
 
     <!-- Canonical -->
@@ -20,25 +20,25 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://solutions-territoire.github.io/caoutsearch/">
-    <meta property="og:title" content="Home | Caoutsearch">
+    <meta property="og:title" content="Overview | Caoutsearch">
     <meta property="og:description" content="Gem Version CI Status Ruby Style Guide Maintainability Test Coverage">
     <meta property="og:image" content="https://badge.fury.io/rb/caoutsearch.svg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://solutions-territoire.github.io/caoutsearch/">
-    <meta property="twitter:title" content="Home | Caoutsearch">
+    <meta property="twitter:title" content="Overview | Caoutsearch">
     <meta property="twitter:description" content="Gem Version CI Status Ruby Style Guide Maintainability Test Coverage">
     <meta property="twitter:image" content="https://badge.fury.io/rb/caoutsearch.svg">
 
-    <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("/caoutsearch/doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
+    <script data-cfasync="false">(function () { var el = document.documentElement, m = localStorage.getItem("doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
-    <link href="resources/css/retype.css?v=3.3.0.747151454675" rel="stylesheet">
+    <link href="resources/css/retype.css?v=3.5.0.761840705152" rel="stylesheet">
 
-    <script data-cfasync="false" src="resources/js/config.js?v=3.3.0.747151454675" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="resources/js/retype.js?v=3.3.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="resources/js/lunr.js?v=3.3.0.747151454675" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="resources/js/prism.js?v=3.3.0.747151454675" defer></script>
+    <script data-cfasync="false" src="resources/js/config.js?v=3.5.0.761840705152" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="resources/js/retype.js?v=3.5.0" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="resources/js/lunr.js?v=3.5.0.761840705152" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="resources/js/prism.js?v=3.5.0.761840705152" defer></script>
 </head>
 <body>
     <div id="docs-app" class="relative text-base antialiased text-gray-700 bg-white font-body dark:bg-dark-850 dark:text-dark-300">
@@ -241,23 +241,6 @@ It provides a simple but powerful DSL to perform complex indexing and searching,
 It is used in production in a robust application, updated and maintained for several years at <a href="https://solutions-territoire.fr">Solutions &amp; Territoire</a>.</p>
 <p>Caoutsearch was inspired by awesome gems such as <a href="https://github.com/elastic/elasticsearch-rails">elasticsearch-rails</a> or <a href="https://github.com/mrkamel/search_flip">search_flip</a>.<br />
 Depending on your search scenarios, they may better suite your needs.</p>
-<doc-anchor-target id="documentation">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#documentation">#</doc-anchor-trigger>
-        <span>Documentation</span>
-    </h2>
-</doc-anchor-target>
-<p>Visit our <a href="https://solutions-territoire.github.io/caoutsearch">offical documentation</a> to understand how to use Caoutsearch.</p>
-<doc-anchor-target id="installation">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#installation">#</doc-anchor-trigger>
-        <span>Installation</span>
-    </h2>
-</doc-anchor-target>
-<p>Add the gem in your Gemfile:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">bundle add caoutsearch</code></pre>
-</doc-codeblock></div>
 <doc-anchor-target id="overview">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#overview">#</doc-anchor-trigger>
@@ -274,9 +257,7 @@ Depending on your search scenarios, they may better suite your needs.</p>
   def tags
     records.tags.public.map(&amp;:to_s)
   end
-end
-
-ArticleIndex.reindex(:tags)</code></pre>
+end</code></pre>
 </doc-codeblock></div>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-ruby"><code v-pre class="language-ruby">class ArticleSearch &lt; Caoutsearch::Search::Base
@@ -292,51 +273,16 @@ ArticleIndex.reindex(:tags)</code></pre>
       }
     }
   }
-end
-
-ArticleSearch.search(published_on: [[&quot;now-1y&quot;, nil]]).aggregate(:popular_tags)</code></pre>
+end</code></pre>
 </doc-codeblock></div>
-<doc-anchor-target id="contributing">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#contributing">#</doc-anchor-trigger>
-        <span>Contributing</span>
-    </h2>
-</doc-anchor-target>
-<ol>
-<li>Don&#x27;t hesitate to submit your feature/idea/fix in <a href="https://github.com/solutions-territoire/caoutsearch/issues">issues</a></li>
-<li>Fork the <a href="https://github.com/solutions-territoire/caoutsearch">repository</a></li>
-<li>Create your feature branch</li>
-<li>Ensure RSpec &amp; Rubocop are passing</li>
-<li>Create a pull request</li>
-</ol>
-<doc-anchor-target id="tests--lint">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#tests--lint">#</doc-anchor-trigger>
-        <span>Tests &amp; lint</span>
-    </h3>
-</doc-anchor-target>
+<p>You can then index your records</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">bundle exec rspec
-bundle exec rubocop
-bundle exec standardrb</code></pre>
+<pre class="language-ruby"><code v-pre class="language-ruby">ArticleIndex.reindex</code></pre>
 </doc-codeblock></div>
-<p>To run RSpec against various version of Rails dependencies:</p>
+<p>Or search through them:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">bundle exec appraisal install
-bundle exec appraisal rspec</code></pre>
+<pre class="language-ruby"><code v-pre class="language-ruby">ArticleSearch.search(published_on: [[&quot;now-1y&quot;, nil]]).aggregate(:popular_tags)</code></pre>
 </doc-codeblock></div>
-<p>All of them can be run with:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">bundle exec rake</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="license--credits">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#license--credits">#</doc-anchor-trigger>
-        <span>License &amp; credits</span>
-    </h2>
-</doc-anchor-target>
-<p>Please see <a href="https://github.com/solutions-territoire/caoutsearch/blob/main/LICENSE">LICENSE</a> for further details.</p>
-<p>Contributors: <a href="https://github.com/solutions-territoire/caoutsearch/graphs/contributors">./graphs/contributors</a></p>
 
                                 
                                 <!-- Required only on API pages -->
@@ -349,10 +295,10 @@ bundle exec appraisal rspec</code></pre>
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l rounded-r-lg transition-colors duration-150 relative hover:z-5" href="release_instruction/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l rounded-r-lg transition-colors duration-150 relative hover:z-5" href="getting_started/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">Release instructions</span>
+                                                <span class="block mt-1">Getting started</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -396,6 +342,6 @@ bundle exec appraisal rspec</code></pre>
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Home", isRoot: true, level: 0, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Overview", isRoot: true, level: 0, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>
