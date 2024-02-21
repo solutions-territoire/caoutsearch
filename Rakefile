@@ -3,15 +3,11 @@
 require "bundler/gem_tasks"
 require "appraisal"
 require "rspec/core/rake_task"
-require "rubocop/rake_task"
-require "standard/rake"
-
-RSpec::Core::RakeTask.new(:spec)
-RuboCop::RakeTask.new
 
 desc "Run the full CI"
 task :default do
   if ENV["APPRAISAL_INITIALIZED"]
+    RSpec::Core::RakeTask.new(:spec)
     Rake::Task["spec"].invoke
   else
     # FYI: Standard & appraisal requires each a spawn process.
@@ -26,6 +22,6 @@ task :default do
 
     fail unless system "bundle exec appraisal rspec"
     fail unless system "bundle exec rubocop"
-    fail unless system "bundle exec rake standard"
+    fail unless system "bundle exec standardrb"
   end
 end

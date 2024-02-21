@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Caoutsearch::Search::BatchMethods, active_record: true do
+RSpec.describe Caoutsearch::Search::BatchMethods, :active_record do
   let(:search_class) { stub_search_class("SampleSearch") }
   let(:search) { search_class.new }
   let(:records) { Array.new(12) { Sample.create } }

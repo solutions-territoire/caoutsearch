@@ -11,16 +11,16 @@ module Caoutsearch
       end
 
       class_methods do
-        def before_build(*filters, &blk)
-          set_callback(:build, :before, *filters, &blk)
+        def before_build(...)
+          set_callback(:build, :before, ...)
         end
 
-        def after_build(*filters, &blk)
-          set_callback(:build, :after, *filters, &blk)
+        def after_build(...)
+          set_callback(:build, :after, ...)
         end
 
-        def around_build(*filters, &blk)
-          set_callback(:build, :around, *filters, &blk)
+        def around_build(...)
+          set_callback(:build, :around, ...)
         end
       end
     end

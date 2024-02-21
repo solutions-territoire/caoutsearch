@@ -25,7 +25,7 @@ module Caoutsearch
 
       def properties_to_inspect
         PROPERTIES_TO_INSPECT.each_with_object({}) do |name, properties|
-          value = instance_variable_get("@#{name}")
+          value = instance_variable_get(:"@#{name}")
           properties[name] = value.inspect if value
         end
       end
