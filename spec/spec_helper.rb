@@ -26,7 +26,7 @@ RSpec.configure do |config|
     expect.syntax = :expect
   end
 
-  config.before :context, active_record: true do
+  config.before :context, :active_record do
     require "database_cleaner/active_record"
     require "active_record"
 
@@ -47,7 +47,7 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning { example.run }
   end
 
-  config.after :context, active_record: true do
+  config.after :context, :active_record do
     ActiveRecord::Schema.define do
       suppress_messages do
         drop_table :samples

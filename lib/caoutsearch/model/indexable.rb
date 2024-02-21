@@ -19,8 +19,8 @@ module Caoutsearch
       end
 
       module ClassMethods
-        def reindex(*properties, **options, &block)
-          index_engine_class.reindex(all, *properties, **options, &block)
+        def reindex(...)
+          index_engine_class.reindex(all, ...)
         end
 
         def delete_indexes

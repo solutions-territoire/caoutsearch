@@ -15,7 +15,9 @@ inherit_gem:
     - config/ruby-3.0.yml
 
 AllCops:
-  TargetRubyVersion: 3.2
+  # Last supported version before EOL
+  # See: https://endoflife.date/ruby
+  TargetRubyVersion: 3.0
   NewCops: enable
   Exclude:
     - '**/vendor/**/*'

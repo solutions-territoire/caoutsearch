@@ -29,3 +29,11 @@ links:
 
 footer:
   copyright: "© 2023 [Solutions & Territoire](https://solutions-territoire.fr) - [MIT License](https://github.com/solutions-territoire/caoutsearch/blob/main/LICENSE)"
+
+edit:
+  base: docs
+
+exclude:
+  - "README.md"
+  - "release_instruction.md"
+  - "retype_instruction.md"
