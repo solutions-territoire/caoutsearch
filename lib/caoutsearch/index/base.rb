@@ -3,9 +3,9 @@
 module Caoutsearch
   module Index
     class Base
-      include Caoutsearch::Config::Client
-      include Caoutsearch::Config::Mappings
-      include Caoutsearch::Config::Settings
+      include Caoutsearch::Concerns::Client
+      include Caoutsearch::Concerns::Mappings
+      include Caoutsearch::Concerns::Settings
 
       include Caoutsearch::Index::Document
       include Caoutsearch::Index::Indice

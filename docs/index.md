@@ -25,18 +25,23 @@ Depending on your search scenarios, they may better suite your needs.
 Caoutsearch let you create `Index` and `Search` classes to manipulate your data :
 
 ```ruby
+class Article < ActiveRecord::Base
+  include Caoutsearch::Model
+
+  index_with ArticleIndex
+  search_with ArticleSearch
+end
+
 class ArticleIndex < Caoutsearch::Index::Base
   property :title
   property :published_on
   property :tags
 
   def tags
-    records.tags.public.map(&:to_s)
+    record.tags.public.map(&:to_s)
   end
 end
-```
 
-```ruby
 class ArticleSearch < Caoutsearch::Search::Base
   filter :title, as: :match
   filter :published_on, as: :date
@@ -53,14 +58,13 @@ class ArticleSearch < Caoutsearch::Search::Base
 end
 ```
 
-You can then index your records
+You can then index & search through your records:
 
 ```ruby
-ArticleIndex.reindex
+Article.reindex
 ```
-
-Or search through them:
-
 ```ruby
-ArticleSearch.search(published_on: [["now-1y", nil]]).aggregate(:popular_tags)
+Article.search(published_on: [["now-1y", nil]]).aggregate(:popular_tags)
 ```
+
+But that's just the beginning...

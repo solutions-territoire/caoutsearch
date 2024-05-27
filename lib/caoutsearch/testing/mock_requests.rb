@@ -92,7 +92,7 @@ module Caoutsearch
 
       def elasticsearch_client_host
         @client_host ||= begin
-          transport = Caoutsearch.client.transport
+          transport = Caoutsearch.config.client.transport
           transport.__full_url(transport.hosts[0])
         end
       end
@@ -120,7 +120,7 @@ module Caoutsearch
           )
 
           if Gem::Version.new(Elasticsearch::VERSION) >= Gem::Version.new("8.9.0")
-            Caoutsearch.client.perform_request("GET", "/")
+            Caoutsearch.config.client.perform_request("GET", "/")
           end
 
           stubbed_request

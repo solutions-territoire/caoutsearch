@@ -2,7 +2,8 @@
 title: Date
 ---
 
-For a date filter defined like this:
+Register a date filter like this:
+
 ```ruby
 class ArticleSearch < Caoutsearch::Search::Base
   ...
@@ -11,7 +12,8 @@ class ArticleSearch < Caoutsearch::Search::Base
 end
 ```
 
-You can now search the matching index with the `published_on` criterion:
+You can now search with the matching property:
+
 ```ruby
 Article.search(published_on: Date.today)
 ```
@@ -29,7 +31,27 @@ and the following query will be generated to send to elasticsearch:
 }
 ```
 
-The date filter accepts multiple types of arguments :
+Various formats for times & dates are accepted:
+```ruby
+"2022-10-11"
+Date.today
+Time.zone.now
+```
+
+It also supports [Elasticsearch Date Math](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math):
+```ruby
+"now-1h"
+"now+2w/d"
+```
+
+It also accepts ranges (closed or open) in various formats: `Range`, `Hash` or `Array`
+```ruby
+..Date.new(2022, 12, 25)
+{ less_than: "2022-12-25" }
+[["now-1w/d", "now/d"]]
+```
+
+Examples:
 
 ```ruby
 # Search for articles published on a date:
@@ -51,17 +73,4 @@ Article.search(published_on: [["now-1w/d", nil]])
 Article.search(published_on: { greater_than: "2022-12-25", less_than: "2023-12-25" })
 Article.search(published_on: Date.new(2022, 12, 25)..Date.new(2023, 12, 25))
 Article.search(published_on: [["now-1w/d", "now/d"]])
-```
-
-Dates of various formats are handled:
-```ruby
-"2022-10-11"
-Date.today
-Time.zone.now
-```
-
-We also support elasticsearch's date math
-```ruby
-"now-1h"
-"now+2w/d"
 ```

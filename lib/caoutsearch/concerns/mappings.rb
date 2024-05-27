@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Caoutsearch
-  module Config
+  module Concerns
     module Mappings
       extend ActiveSupport::Concern
 
