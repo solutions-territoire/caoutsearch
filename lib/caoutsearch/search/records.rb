@@ -5,10 +5,14 @@ module Caoutsearch
     module Records
       def records(use: nil, skip_query_cache: false)
         if use
-          records_adapter.call(use, hits, skip_query_cache: skip_query_cache)
+          load_records(hits, use: use, skip_query_cache: skip_query_cache)
         else
-          @records ||= records_adapter.call(model, hits)
+          @records ||= load_records(hits)
         end
+      end
+
+      def load_records(hits, use: nil, **options)
+        records_adapter.call(use || model, hits, **options)
       end
 
       def records_adapter

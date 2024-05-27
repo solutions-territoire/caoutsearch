@@ -36,6 +36,10 @@ RSpec.configure do |config|
         create_table :samples do |t|
           t.string :name
         end
+
+        create_table :another_models do |t|
+          t.string :name
+        end
       end
     end
 

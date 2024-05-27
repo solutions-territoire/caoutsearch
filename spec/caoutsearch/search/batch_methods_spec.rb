@@ -61,6 +61,15 @@ RSpec.describe Caoutsearch::Search::BatchMethods, :active_record do
       stub_elasticsearch_search_request("samples", [], sources: false, total: 12)
       expect(search.find_each_record.size).to eq(12)
     end
+
+    it "yields each record from another class" do
+      stub_elasticsearch_batching_requests("samples", hits)
+      stub_model_class("AnotherModel")
+      other_records = Array.new(12) { AnotherModel.create }
+
+      expect { |b| search.find_each_record(use: AnotherModel, &b) }
+        .to yield_successive_args(*other_records)
+    end
   end
 
   describe "#find_hits_in_batches" do
