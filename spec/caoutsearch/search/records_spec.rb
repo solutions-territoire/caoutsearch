@@ -17,6 +17,7 @@ RSpec.describe Caoutsearch::Search::Records, :active_record do
 
   before do
     stub_model_class("Sample")
+
     (135..138).map { |id| Sample.create(id: id) }
   end
 
@@ -32,6 +33,23 @@ RSpec.describe Caoutsearch::Search::Records, :active_record do
 
   it "returns records in the same order of the hits" do
     records = search.records
-    expect(records.map(&:id)).to eq([138, 135, 137, 136])
+
+    aggregate_failures do
+      expect(records).to all(be_a(Sample))
+      expect(records.map(&:id)).to eq([138, 135, 137, 136])
+    end
+  end
+
+  it "returns records from another class" do
+    stub_model_class("AnotherModel")
+    AnotherModel.create(id: 135)
+    AnotherModel.create(id: 138)
+
+    records = search.records(use: AnotherModel)
+
+    aggregate_failures do
+      expect(records).to all(be_a(AnotherModel))
+      expect(records.map(&:id)).to eq([138, 135])
+    end
   end
 end

@@ -19,7 +19,7 @@ module Caoutsearch
         end
       end
 
-      def find_records_in_batches(**options)
+      def find_records_in_batches(use: nil, **options)
         unless block_given?
           return to_enum(:find_records_in_batches, **options) do
             find_hits_in_batches(**options).size
@@ -27,7 +27,7 @@ module Caoutsearch
         end
 
         find_hits_in_batches(**options) do |hits|
-          yield records_adapter.call(model, hits, skip_query_cache: true)
+          yield load_records(hits, use: use, skip_query_cache: true)
         end
       end
 
