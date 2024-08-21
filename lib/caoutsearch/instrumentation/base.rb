@@ -12,7 +12,7 @@ module Caoutsearch
         request = payload[:request]
 
         debug do
-          title = color("#{payload[:klass]} #{subject}", GREEN, true)
+          title = color("#{payload[:klass]} #{subject}", GREEN, bold: true)
           request_body = format_request_body(request, format: format)
 
           message = "  #{title} #{request_body}"
@@ -27,11 +27,11 @@ module Caoutsearch
         return unless response
 
         debug do
-          title = color("#{payload[:klass]} #{subject}", GREEN, true)
+          title = color("#{payload[:klass]} #{subject}", GREEN, bold: true)
 
           duration = "#{event.duration.round(1)}ms"
           duration += " / took #{response["took"]}ms" if response.key?("took")
-          duration = color("(#{duration})", GREEN, true)
+          duration = color("(#{duration})", GREEN, bold: true)
 
           message = "  #{title} #{duration}"
           message += " got errors" if response["errors"]
@@ -44,7 +44,7 @@ module Caoutsearch
 
         errors = response["items"].select { |k, _| k.values.first["error"] }
         errors.each do |error|
-          warn { color(error, RED, true) }
+          warn { color(error, RED, bold: true) }
         end
       end
 
@@ -54,15 +54,23 @@ module Caoutsearch
           body.ai(limit: true, index: false)
         when "full"
           json = MultiJson.dump(body)
-          color(json, BLUE, true)
+          color(json, BLUE, bold: true)
         when "truncated"
           json = MultiJson.dump(body).truncate(200, omission: "…}")
-          color(json, BLUE, true)
+          color(json, BLUE, bold: true)
         end
       end
 
       def inspect_json_size(json)
         ApplicationController.helpers.number_to_human_size(MultiJson.dump(json).bytesize)
+      end
+
+      def color(message, color, bold: false)
+        if Gem::Version.new(ActiveSupport.version) >= Gem::Version.new("7.1.0")
+          super
+        else
+          super(message, color, bold)
+        end
       end
     end
   end
