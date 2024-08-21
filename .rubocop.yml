@@ -1,23 +1,21 @@
 inherit_from: .rubocop_todo.yml
 
 require:
+  - standard
+  - standard-custom
+  - standard-performance
   - rubocop-performance
   - rubocop-rspec
   - rubocop-rake
-  - standard
 
 inherit_gem:
-  standard:
-    - config/base.yml
-    - config/ruby-2.5.yml
-    - config/ruby-2.6.yml
-    - config/ruby-2.7.yml
-    - config/ruby-3.0.yml
+  standard: config/ruby-3.0.yml
+  standard-custom: config/base.yml
+  standard-performance: config/base.yml
 
 AllCops:
-  # Last supported version before EOL
-  # See: https://endoflife.date/ruby
   TargetRubyVersion: 3.0
   NewCops: enable
   Exclude:
+    - '**/tmp/**/*'
     - '**/vendor/**/*'

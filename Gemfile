@@ -5,4 +5,5 @@ gemspec
 
 gem "gem-release"
 gem "simplecov_json_formatter"
-gem "sqlite3", "~> 1.4.0"
+gem "sqlite3"
+gem "amazing_print"
