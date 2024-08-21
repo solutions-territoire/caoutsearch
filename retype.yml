@@ -1,4 +1,4 @@
-input: .
+input: ./docs
 output: .retype
 url: https://solutions-territoire.github.io/caoutsearch
 
