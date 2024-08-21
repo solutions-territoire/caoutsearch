@@ -54,6 +54,11 @@ RSpec.configure do |config|
       end
     end
   end
+
+  config.after :context, :instrumentation do
+    Caoutsearch::Instrumentation::Index.detach_from :caoutsearch_index
+    Caoutsearch::Instrumentation::Search.detach_from :caoutsearch_search
+  end
 end
 
 def stub_index_class(class_name, &block)
