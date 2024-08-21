@@ -23,18 +23,23 @@ end
 # Supported versions of Rails:
 # https://endoflife.date/rails
 #
-appraise "rails-6.1" do
-  gem "activesupport", "~> 7.0.x"
+if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new("3.0")
+  appraise "rails-6.1" do
+    gem "activesupport", "~> 6.1.x"
+    gem "sqlite3", "~> 1.4.0"
+  end
 end
 
 appraise "rails-7.0" do
   gem "activesupport", "~> 7.0.x"
 end
 
-appraise "rails-7.1" do
-  gem "activesupport", "~> 7.1.x"
-end
+if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.1")
+  appraise "rails-7.1" do
+    gem "activesupport", "~> 7.1.x"
+  end
 
-appraise "rails-7.2" do
-  gem "activesupport", "~> 7.2.x"
+  appraise "rails-7.2" do
+    gem "activesupport", "~> 7.2.x"
+  end
 end
