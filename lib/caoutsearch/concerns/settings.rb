@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Caoutsearch
-  module Config
+  module Concerns
     module Settings
       extend ActiveSupport::Concern
 
       included do
-        delegate :mappings, to: :class
+        delegate :settings, to: :class
       end
 
       class_methods do
@@ -21,7 +21,7 @@ module Caoutsearch
         protected
 
         def default_settings
-          Caoutsearch.settings.to_hash.dup
+          Caoutsearch.config.settings.to_hash.dup
         end
       end
     end

@@ -50,7 +50,7 @@ module Caoutsearch
       private
 
       def log_request_format
-        Caoutsearch.instrumentation_options[:index]
+        Caoutsearch.config.index.instrumentation_format
       end
     end
   end
