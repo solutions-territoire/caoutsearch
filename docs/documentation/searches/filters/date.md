@@ -2,21 +2,19 @@
 title: Date
 ---
 
-For a date filter defined like this:
+You can define a date filter using `as: :date`:
+
 ```ruby
 class ArticleSearch < Caoutsearch::Search::Base
-  ...
-
   filter :published_on, as: :date
 end
 ```
 
-You can now search the matching index with the `published_on` criterion:
+The filter will build a range query to match any [data field type](https://www.elastic.co/docs/reference/elasticsearch/mapping-reference/date):
+
 ```ruby
 Article.search(published_on: Date.today)
 ```
-
-and the following query will be generated to send to elasticsearch:
 ```json
 {
   "query": { 
@@ -29,12 +27,22 @@ and the following query will be generated to send to elasticsearch:
 }
 ```
 
-The date filter accepts multiple types of arguments :
+The date filter accepts various types of date:
+```ruby
+Article.search(published_on: "2022-10-11")
+Article.search(published_on: Date.today)
+Article.search(published_on: Time.zone.now)
+```
+
+It also supports elasticsearch's date math:
+```ruby
+Article.search(published_on: "now-1h")
+Article.search(published_on: "now+2w/d")
+```
+
+Finally, it accepts multiple ranges of arguments:
 
 ```ruby
-# Search for articles published on a date:
-Article.search(published_on: Date.today)
-
 # Search for articles published before a date:
 Article.search(published_on: { less_than: "2022-12-25" })
 Article.search(published_on: { less_than_or_equal: "2022-12-25" })
@@ -51,17 +59,4 @@ Article.search(published_on: [["now-1w/d", nil]])
 Article.search(published_on: { greater_than: "2022-12-25", less_than: "2023-12-25" })
 Article.search(published_on: Date.new(2022, 12, 25)..Date.new(2023, 12, 25))
 Article.search(published_on: [["now-1w/d", "now/d"]])
-```
-
-Dates of various formats are handled:
-```ruby
-"2022-10-11"
-Date.today
-Time.zone.now
-```
-
-We also support elasticsearch's date math
-```ruby
-"now-1h"
-"now+2w/d"
 ```
