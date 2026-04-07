@@ -6,7 +6,11 @@ module Caoutsearch
       def filter
         return {} if value.nil?
 
-        {term: {key => value}}
+        if value.is_a?(Array)
+          {terms: {key => value}}
+        else
+          {term: {key => value}}
+        end
       end
 
       protected

@@ -53,8 +53,9 @@ module Caoutsearch
         # rubocop:enable Lint/BooleanSymbol
 
         def cast_as_boolean(value)
-          if value == ""
-            nil
+          case value
+          when nil, "" then nil
+          when Array then value.map { |v| cast_as_boolean(v) }.uniq.compact
           else
             BOOLEAN_FALSE_VALUES.exclude?(value)
           end
