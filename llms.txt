@@ -1,0 +1,63 @@
+﻿#  | Caoutsearch
+
+> Gem Version CI Status Ruby Style Guide Maintainability Test Coverage
+
+- [Overview](https://solutions-territoire.github.io/caoutsearch/index.md): Overview
+- [Getting started](https://solutions-territoire.github.io/caoutsearch/getting_started.md): Caoutsearch requires at least :
+
+## Documentation
+
+### Indice configuration
+
+- [[TODO] Mapping & settings](https://solutions-territoire.github.io/caoutsearch/documentation/indices/mapping_setting.md)
+- [[TODO] Text analysis](https://solutions-territoire.github.io/caoutsearch/documentation/indices/text_analysis.md)
+- [[TODO] Versionning](https://solutions-territoire.github.io/caoutsearch/documentation/indices/versionning.md)
+
+### Index Engine
+
+- [[TODO] Properties](https://solutions-territoire.github.io/caoutsearch/documentation/indexes/properties.md)
+- [[TODO] Partial updates](https://solutions-territoire.github.io/caoutsearch/documentation/indexes/partial_updates.md)
+- [[TODO] Eager loading](https://solutions-territoire.github.io/caoutsearch/documentation/indexes/eager_loading.md)
+- [[TODO] Interdependencies](https://solutions-territoire.github.io/caoutsearch/documentation/indexes/interdependencies.md)
+
+### Search Engine
+
+- [[TODO] Queries](https://solutions-territoire.github.io/caoutsearch/documentation/searches/queries.md)
+
+#### Filters
+
+- [Filters](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters.md): Filters declared in the search engine will define how Caoutsearch will build the queries
+- [[TODO] Boolean](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean.md)
+- [[TODO] Default](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/defaults.md)
+- [[TODO] Geopoint](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/geopoint.md)
+- [[TODO] Match](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/match.md)
+- [[TODO] Range](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/range.md)
+- [Date](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/date.md): You can define a date filter using as: :date:
+- [[TODO] Full-text query](https://solutions-territoire.github.io/caoutsearch/documentation/searches/full_text_query.md)
+- [[TODO] Custom filters](https://solutions-territoire.github.io/caoutsearch/documentation/searches/custom_filters.md)
+- [Contexts](https://solutions-territoire.github.io/caoutsearch/documentation/searches/contexts.md): Contexts allows to create search scopes independently of search criteria. Because search criteria may comes from user inputs, contexts offers a way to
+- [[TODO] Orders](https://solutions-territoire.github.io/caoutsearch/documentation/searches/orders.md)
+- [Aggregations](https://solutions-territoire.github.io/caoutsearch/documentation/searches/aggregations.md): You can define simple to complex aggregations.
+- [Transform aggregations](https://solutions-territoire.github.io/caoutsearch/documentation/searches/transform_aggregations.md): When using buckets aggregation and/or pipeline aggregation, the path to the expected values can get complicated and become subject to unexpected changes for a public API.
+- [Responses](https://solutions-territoire.github.io/caoutsearch/documentation/searches/responses.md): After the request has been sent by calling a method such as load, response or hits, the results is wrapped in a Response::Response class which provides method access to its properties via Hashie::Mash.
+- [Loading records](https://solutions-territoire.github.io/caoutsearch/documentation/searches/loading_records.md): Use records to load model records.
+
+### Model integration
+
+- [Add Caoutsearch to your models](https://solutions-territoire.github.io/caoutsearch/documentation/models/add_caoutsearch.md): The simplest solution is to add Caoutsearch::Model to your model and the link the appropriate Index and/or Search engines:
+
+#### Index records
+
+- [Index multiple records](https://solutions-territoire.github.io/caoutsearch/documentation/models/index_records/index_multiple_records.md): Import all your records or a restricted scope of records to Elastcisearch.
+- [Index single records](https://solutions-territoire.github.io/caoutsearch/documentation/models/index_records/index_single_records.md): Import a single record.
+- [Delete documents](https://solutions-territoire.github.io/caoutsearch/documentation/models/index_records/delete_documents.md): You can delete one or more documents. Note: it won't delete records from database, only from the ES indice.
+- [Automatic callbacks](https://solutions-territoire.github.io/caoutsearch/documentation/models/index_records/automatic_callbacks.md): Callbacks are not provided by Caoutsearch but they are very easy to add:
+- [[TODO] Asynchronous methods](https://solutions-territoire.github.io/caoutsearch/documentation/models/index_records/asynchronous_methods.md)
+
+#### Search records
+
+- [Search API](https://solutions-territoire.github.io/caoutsearch/documentation/models/search_records/search_api.md): Searching is pretty simple.
+- [Pagination](https://solutions-territoire.github.io/caoutsearch/documentation/models/search_records/pagination.md): Search results can be paginated.
+- [Total count](https://solutions-territoire.github.io/caoutsearch/documentation/models/search_records/total_count.md): By default ES doesn't return the total number of hits. So, when calling total_count or total_pages a second request might be sent to ES. To avoid a second
+- [Iterating results](https://solutions-territoire.github.io/caoutsearch/documentation/models/search_records/iteration.md): Several methods are provided to loop through a collection or hits or records. These methods are processing batches in the most efficient way: PIT search_after.
+- [Testing with Caoutsearch](https://solutions-territoire.github.io/caoutsearch/documentation/testing.md): Caoutsearch offers few methods to stub Elasticsearch requests. You first need to add webmock to your Gemfile.
