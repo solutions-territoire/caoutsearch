@@ -18,8 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # TODO: we should test only supported versions: https://endoflife.date/ruby
-        ruby-version: [ '2.7', '3.0', '3.1', '3.2', '3.3', 'head' ]
+        # Exclude EOL versions
+        # See: https://endoflife.date/ruby
+        #
+        ruby-version: [ '3.3', '3.4', '4.0', 'head' ]
 
     steps:
     - uses: actions/checkout@v3
@@ -34,13 +36,7 @@ jobs:
       run: bundle exec appraisal install
 
     - name: Run tests
-      run: CC_TEST_REPORTER_ID=1 bundle exec appraisal rspec
-
-    - name: Publish code coverage
-      if: ${{ success() && env.CC_TEST_REPORTER_ID && matrix.ruby-version == '3.2' }}
-      uses: paambaati/codeclimate-action@v3.2.0
-      env:
-        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: bundle exec appraisal rspec
 
   rubocop:
     runs-on: ubuntu-latest
@@ -51,7 +47,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.2'
+        ruby-version: '4.0'
         bundler-cache: true
 
     - name: Run rubocop
@@ -66,7 +62,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.2'
+        ruby-version: '4.0'
         bundler-cache: true
 
     - name: Run standardb

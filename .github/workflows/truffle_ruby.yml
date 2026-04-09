@@ -30,4 +30,4 @@ jobs:
       run: bundle exec appraisal install
 
     - name: Run tests
-      run: CC_TEST_REPORTER_ID=1 bundle exec appraisal rspec
+      run: bundle exec appraisal rspec

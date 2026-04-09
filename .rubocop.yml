@@ -1,20 +1,19 @@
 inherit_from: .rubocop_todo.yml
 
-require:
-  - standard
-  - standard-custom
-  - standard-performance
+plugins:
   - rubocop-performance
   - rubocop-rspec
   - rubocop-rake
 
+require:
+  - standard
+
 inherit_gem:
-  standard: config/ruby-3.0.yml
-  standard-custom: config/base.yml
+  standard: config/base.yml
   standard-performance: config/base.yml
 
 AllCops:
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 4.0
   NewCops: enable
   Exclude:
     - '**/tmp/**/*'

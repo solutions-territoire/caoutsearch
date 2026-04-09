@@ -27,7 +27,7 @@ module Caoutsearch
             build_range_query(input)
           when ::Hash
             case input
-            in { between: dates }
+            in {between: dates}
               build_range_query(dates)
             else
               parameters = input.to_h do |operator, value|
