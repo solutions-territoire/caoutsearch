@@ -3,7 +3,23 @@
 require "spec_helper"
 
 RSpec.describe Caoutsearch::Search::TypeCast do
-  describe "casts dates" do
+  describe "boolean casting" do
+    it { expect(described_class.cast(:boolean, true)).to be(true) }
+    it { expect(described_class.cast(:boolean, "1")).to be(true) }
+    it { expect(described_class.cast(:boolean, "on")).to be(true) }
+    it { expect(described_class.cast(:boolean, "true")).to be(true) }
+
+    it { expect(described_class.cast(:boolean, false)).to be(false) }
+    it { expect(described_class.cast(:boolean, "0")).to be(false) }
+    it { expect(described_class.cast(:boolean, "off")).to be(false) }
+    it { expect(described_class.cast(:boolean, "false")).to be(false) }
+
+    it { expect(described_class.cast(:boolean, [true])).to eq([true]) }
+    it { expect(described_class.cast(:boolean, [false])).to eq([false]) }
+    it { expect(described_class.cast(:boolean, ["false", "1", "true", ""])).to eq([false, true]) }
+  end
+
+  describe "date casting" do
     describe "allows date strings" do
       it { expect(described_class.cast(:date, "2022-10-11")).to eq("2022-10-11") }
       it { expect(described_class.cast(:date, "2022-10-25 11:57:38 +0200")).to eq("2022-10-25 11:57:38 +0200") }
