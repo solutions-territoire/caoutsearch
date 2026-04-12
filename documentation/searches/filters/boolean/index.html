@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <meta name="turbo-root" content="/caoutsearch">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.5.2.829045963066">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.5.3.829317879351">
 
     <!-- See retype.com -->
-    <meta name="generator" content="Retype 4.5.2">
+    <meta name="generator" content="Retype 4.5.3">
 
     <!-- Primary Meta Tags -->
-    <title>[TODO] Boolean | Caoutsearch</title>
-    <meta name="title" content="[TODO] Boolean | Caoutsearch">
+    <title>Boolean | Caoutsearch</title>
+    <meta name="title" content="Boolean | Caoutsearch">
+    <meta name="description" content="You can define a boolean filter using as: :boolean:">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean/">
@@ -21,25 +22,28 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean/">
-    <meta property="og:title" content="[TODO] Boolean | Caoutsearch">
+    <meta property="og:title" content="Boolean | Caoutsearch">
+    <meta property="og:description" content="You can define a boolean filter using as: :boolean:">
     <meta property="og:site_name" content="Caoutsearch">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean/">
-    <meta name="twitter:title" content="[TODO] Boolean | Caoutsearch">
+    <meta name="twitter:title" content="Boolean | Caoutsearch">
+    <meta name="twitter:description" content="You can define a boolean filter using as: :boolean:">
 
     <!-- Alternate Markdown -->
     <link rel="alternate" type="text/markdown" href="https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean.md">
 
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
-    <link href="../../../../resources/css/retype.css?v=4.5.2.829045963066" rel="stylesheet">
+    <link href="../../../../resources/css/retype.css?v=4.5.3.829317879351" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../../resources/js/config.js?v=4.5.2.829045963066" data-turbo-eval="false" defer></script>
-    <script data-cfasync="false" src="../../../../resources/js/retype.js?v=4.5.2" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../../resources/js/lunr.js?v=4.5.2.829045963066" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../../resources/js/config.js?v=4.5.3.829317879351" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../../resources/js/retype.js?v=4.5.3" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../../resources/js/lunr.js?v=4.5.3.829317879351" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../../resources/js/prism.js?v=4.5.3.829317879351" defer></script>
 </head>
 <body>
     <div id="retype-app" class="relative text-base antialiased text-base-text bg-base-bg font-body">
@@ -187,7 +191,70 @@
                 <doc-page-actions></doc-page-actions>
 
                 <!-- Page content  -->
-<h1 id="todo-boolean">[TODO] Boolean</h1>
+<h1 id="boolean">Boolean</h1>
+<p>You can define a boolean filter using <code translate="no" v-pre>as: :boolean</code>:</p>
+<div id="boolean-code-1" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-ruby"><code v-pre class="language-ruby">class ArticleSearch &lt; Caoutsearch::Search::Base
+  filter :published, as: :boolean
+end</code></pre>
+</doc-codeblock></div>
+<p>The filter will transform input as booleans:</p>
+<div id="boolean-code-2" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-ruby"><code v-pre class="language-ruby">Article.search(published: &quot;true&quot;)</code></pre>
+</doc-codeblock></div>
+<div id="boolean-code-3" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-json"><code v-pre class="language-json">{
+  &quot;query&quot;: { 
+    &quot;bool&quot;: { 
+      &quot;filter&quot;: [ 
+        { &quot;range&quot;: { &quot;published&quot;: true }}
+      ]
+    }
+  }
+}</code></pre>
+</doc-codeblock></div>
+<p>The following values will be casted as <code translate="no" v-pre>false</code>:</p>
+<div id="boolean-code-4" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-ruby"><code v-pre class="language-ruby">Article.search(published: false)
+Article.search(published: 0)
+Article.search(published: &quot;0&quot;)
+Article.search(published: &quot;f&quot;)
+Article.search(published: &quot;false&quot;)
+Article.search(published: &quot;off&quot;)</code></pre>
+</doc-codeblock></div>
+<div id="boolean-code-5" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-json"><code v-pre class="language-json">{
+  &quot;query&quot;: { 
+    &quot;bool&quot;: { 
+      &quot;filter&quot;: [ 
+        { &quot;range&quot;: { &quot;published&quot;: false }}
+      ]
+    }
+  }
+}</code></pre>
+</doc-codeblock></div>
+<p>Empty values (<code translate="no" v-pre>nil</code>, <code translate="no" v-pre>&quot;&quot;</code>, <code translate="no" v-pre>[]</code>) are ignored.
+Any other values, will be casted as <code translate="no" v-pre>true</code>:</p>
+<div id="boolean-code-6" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-ruby"><code v-pre class="language-ruby">Article.search(published: true)
+Article.search(published: 1)
+Article.search(published: &quot;1&quot;)
+Article.search(published: &quot;t&quot;)
+Article.search(published: &quot;true&quot;)
+Article.search(published: &quot;on&quot;)
+Article.search(published: &quot;whatever&quot;)</code></pre>
+</doc-codeblock></div>
+<div id="boolean-code-7" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-json"><code v-pre class="language-json">{
+  &quot;query&quot;: { 
+    &quot;bool&quot;: { 
+      &quot;filter&quot;: [ 
+        { &quot;range&quot;: { &quot;published&quot;: true }}
+      ]
+    }
+  }
+}</code></pre>
+</doc-codeblock></div>
 
                 
                 <!-- Required only on API pages -->
@@ -197,20 +264,20 @@
             
                 <nav id="retype-nextprev" class="print:hidden flex mt-14">
                     <div class="w-1/2">
-                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../../../documentation/searches/filters/">
+                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../../../../documentation/searches/filters/range/">
                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                             <span>
                                 <span class="block text-xs font-normal text-base-text-muted">Previous</span>
-                                <span class="block mt-1">Filters</span>
+                                <span class="block mt-1">[TODO] Range</span>
                             </span>
                         </a>
                     </div>
             
                     <div class="w-1/2">
-                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../../../documentation/searches/filters/defaults/">
+                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../../../documentation/searches/filters/date/">
                             <span>
                                 <span class="block text-xs font-normal text-right text-base-text-muted">Next</span>
-                                <span class="block mt-1">[TODO] Default</span>
+                                <span class="block mt-1">Date</span>
                             </span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                         </a>
@@ -254,6 +321,6 @@
 
     <div id="retype-overlay-target"></div>
 
-        <script data-cfasync="false">window.__DOCS__ = { "title": "[TODO] Boolean", level: 4, icon: "file", hasPrism: false, hasInstagram: false, hasMermaid: false, hasMath: false, tocDepth: 23, "md": "/documentation/searches/filters/boolean.md" }</script>
+        <script data-cfasync="false">window.__DOCS__ = { "title": "Boolean", level: 4, icon: "file", hasPrism: true, hasInstagram: false, hasMermaid: false, hasMath: false, tocDepth: 23, "md": "/documentation/searches/filters/boolean.md" }</script>
 </body>
 </html>

@@ -27,11 +27,11 @@
 #### Filters
 
 - [Filters](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters.md): Filters declared in the search engine will define how Caoutsearch will build the queries
-- [[TODO] Boolean](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean.md)
 - [[TODO] Default](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/defaults.md)
 - [[TODO] Geopoint](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/geopoint.md)
 - [[TODO] Match](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/match.md)
 - [[TODO] Range](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/range.md)
+- [Boolean](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/boolean.md): You can define a boolean filter using as: :boolean:
 - [Date](https://solutions-territoire.github.io/caoutsearch/documentation/searches/filters/date.md): You can define a date filter using as: :date:
 - [[TODO] Full-text query](https://solutions-territoire.github.io/caoutsearch/documentation/searches/full_text_query.md)
 - [[TODO] Custom filters](https://solutions-territoire.github.io/caoutsearch/documentation/searches/custom_filters.md)
